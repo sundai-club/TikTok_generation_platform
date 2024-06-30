@@ -12,8 +12,11 @@ def combine_video_audio(video_path, audio_path, output_path):
     edited_video = concatenate_videoclips(videos)
     edited_video = edited_video.subclip(0, audio.duration)
     
+    # Resize the video to 9:16 aspect ratio and 1080x1920 resolution
+    edited_video = edited_video.resize(newsize=(1080, 1920))
+    
     edited_video = edited_video.set_audio(audio)
     edited_video.write_videofile(output_path, codec="libx264", audio_codec="aac")
 
 # Example usage
-# combine_video_audio("../data/video1.mp4", "../data/audio1.wav", "../data/output.mp4")
+combine_video_audio("../data/video1.mp4", "../data/audio1.wav", "../data/output.mp4")
