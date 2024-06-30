@@ -2,13 +2,32 @@
 
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { api } from "@/trpc/react";
 
 function FileUploader() {
   const [files, setFiles] = useState<File[]>([]);
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+
+  const uploadFile = api.post.uploadFile.useMutation({
+    onSuccess: (data) => {
+      setUploadStatus(`File uploaded successfully. Path: ${data.filePath}`);
+    },
+    onError: (error) => {
+      setUploadStatus(`Error uploading file: ${error.message}`);
+    },
+  });
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFiles(acceptedFiles);
-  }, []);
+    acceptedFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64String = reader.result as string;
+        uploadFile.mutate({ file: base64String.split(',')[1] });
+      };
+      reader.readAsDataURL(file);
+    });
+  }, [uploadFile]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
@@ -32,6 +51,7 @@ function FileUploader() {
       ) : (
         <p className="mt-4">No files uploaded yet.</p>
       )}
+      {uploadStatus && <p className="mt-4">{uploadStatus}</p>}
     </div>
   );
 }
