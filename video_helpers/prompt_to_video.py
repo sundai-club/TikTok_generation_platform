@@ -1,4 +1,5 @@
 import replicate
+import requests
 
 TEST_SCRIPT= [
   {
@@ -15,17 +16,26 @@ MODEL_INFINITE_ZOOM = "arielreplicate/stable_diffusion_infinite_zoom:a2527c5074f
 def prompt_to_video(model=MODEL_INFINITE_ZOOM, 
                     parsed_script = TEST_SCRIPT):
     result = []
+    i = 0
     for snippet in parsed_script:
         input = {
             "prompt": snippet.get("prompt"),
             "inpaint_iter": 4
         }
+        i += 1
 
         output = replicate.run(
             model,
             input=input
         )
-        snippet["mp4"] = output.get("mp4")
+        print(output)
+        snippet["url"] = output.get("mp4")
+        response = requests.get(snippet["url"])
+        snippet["video_path"] = '../data/video_'+str(i)+'.mp4'
+        with open(snippet["video_path"], 'wb') as file:
+          # Write the content of the response to the file
+          file.write(response.content)
+
         result.append(snippet)
     return result
 
