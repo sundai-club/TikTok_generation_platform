@@ -19,4 +19,5 @@ def combine_video_audio(video_path, audio_path, output_path):
     edited_video.write_videofile(output_path, codec="libx264", audio_codec="aac")
 
 # Example usage
-combine_video_audio("../data/video1.mp4", "../data/audio1.wav", "../data/output.mp4")
+#combine_video_audio("../data/video1.mp4", "../data/audio1.wav", "../data/output.mp4")
+combine_video_audio("src/output.mp4", "src/replicate-prediction-evvvrghn4drj60cgd8xrtc403g.wav", "src/output-main.mp4")
