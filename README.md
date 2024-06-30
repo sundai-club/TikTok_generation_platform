@@ -35,3 +35,9 @@ python -m venv env
 ```bash
 pip install -r requirements.txt
 ```
+
+## Install ImageMagick (Mac)
+
+```bash
+brew install imagemagick
+```
