@@ -29,5 +29,7 @@ def prompt_to_video(model=MODEL_INFINITE_ZOOM,
 
     return result
 
-test_result = prompt_to_video()
-print(test_result)
+#example
+# test_result = prompt_to_video(parsed_script = YOUR_SCRIPT)
+# print(test_result)
+# [{'text': 'In a world where efficient travel and remote living were becoming increasingly important, a group of savvy globetrotters shared their secrets for streamlining life on the go.', 'prompt': 'Discussing travel efficiency and remote living', 'mp4': 'https://replicate.delivery/yhqm/cgSR0J05zFI4Bl6pVZvlGVG4TQIQpY3fME5FOXsedUaEI3DTA/infinit_zoom.mp4'%7D, {'text': 'Nathalie introduced Earth Class Mail, a service that digitized physical mail, allowing nomads to manage their correspondence from anywhere.', 'prompt': 'Introducing digital mail for nomads', 'mp4': 'https://replicate.delivery/yhqm/HCWOIYoB3exMW6kyvn8YfrIsfjxvWfB5X7KjxjxRWarOhcPMB/infinit_zoom.mp4'%7D]
