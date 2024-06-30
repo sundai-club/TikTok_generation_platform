@@ -22,7 +22,6 @@ def crop_and_resize(video,target_width=1080,target_height=1350):
     
 
 def combine_video_audio(video_path, audio_path, output_path):
-    
     # Load the video and audio files
     video = VideoFileClip(video_path)
     audio = AudioFileClip(audio_path)
@@ -37,9 +36,19 @@ def combine_video_audio(video_path, audio_path, output_path):
     #edited_video = edited_video.resize(newsize=(1080, 1920))
     cropped_video = crop_and_resize(edited_video,target_width=1080,target_height=1350)
     
-    edited_video = edited_video.set_audio(audio)
-    edited_video.write_videofile(output_path, codec="libx264", audio_codec="aac")
+    cropped_video = cropped_video.set_audio(audio)
+    cropped_video.write_videofile(output_path, codec="libx264", audio_codec="aac")
+
+def combine_videos(video_paths, output_path):
+    # Load all video clips
+    video_clips = [VideoFileClip(video) for video in video_paths]
+    
+    # Concatenate the video clips
+    final_clip = concatenate_videoclips(video_clips, method="compose")
+    
+    # Write the final output video to the specified path
+    final_clip.write_videofile(output_path, codec="libx264", audio_codec="aac")
 
 # Example usage
 #combine_video_audio("../data/video1.mp4", "../data/audio1.wav", "../data/output.mp4")
-combine_video_audio("src/output.mp4", "src/replicate-prediction-evvvrghn4drj60cgd8xrtc403g.wav", "src/output-main.mp4")
+# combine_video_audio("src/output.mp4", "src/replicate-prediction-evvvrghn4drj60cgd8xrtc403g.wav", "src/output-main.mp4")
