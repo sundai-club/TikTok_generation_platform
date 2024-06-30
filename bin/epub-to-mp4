@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -e
+
+inputFilename="$1"
+outputFilename="$2"
+
+if [ -z "$inputFilename" -o -z "$outputFilename" ]; then
+  echo "Usage: $0 input.epub output.mp4"
+  exit 1
+fi
+
+# make sure the input file exists
+if [ ! -f "$inputFilename" ]; then
+  echo "Input file $inputFilename does not exist"
+  exit 1
+fi
+
+# make sure the output file does not exist
+if [ -f "$outputFilename" ]; then
+  echo "Output file $outputFilename already exists"
+  exit 1
+fi
+
+# write the hash of the epub to the mp4
+# Calculate the hash of the input EPUB file
+hash=$(sha256sum "$inputFilename" | awk '{ print $1 }')
+
+# Create a temporary text file with the hash
+tempHashFile=$(mktemp)
+echo "$hash" > "$tempHashFile"
+
+# Use ffmpeg to create a silent MP4 video with the hash as metadata
+ffmpeg -f lavfi -i color=c=black:s=320x240:d=5 -vf "drawtext=textfile=$tempHashFile:fontcolor=white:fontsize=24:x=(w-text_w)/2:y=(h-text_h)/2" -c:v libx264 -t 5 -pix_fmt yuv420p "$outputFilename"
+
+# Clean up the temporary hash file
+rm "$tempHashFile"

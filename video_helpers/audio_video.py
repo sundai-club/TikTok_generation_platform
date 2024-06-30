@@ -1,5 +1,26 @@
 from moviepy.editor import VideoFileClip, AudioFileClip, concatenate_videoclips
 
+def crop_and_resize(video,target_width=1080,target_height=1350):
+    # Resize if necessary
+    if video.w < target_width or video.h < target_height:
+        resize_factor = max(target_width / video.w, target_height / video.h)
+        video = video.resize(resize_factor)    
+        
+    # Calculate the center coordinates of the video
+    center_x = video.w / 2
+    center_y = video.h / 2
+    
+    # Calculate the top-left coordinates of the crop box
+    crop_x = center_x - target_width / 2
+    crop_y = center_y - target_height / 2
+    
+    # Crop the video
+    cropped_video = video.crop(x1=crop_x, y1=crop_y, width=target_width, height=target_height)
+
+    return cropped_video
+    
+    
+
 def combine_video_audio(video_path, audio_path, output_path):
     
     # Load the video and audio files
@@ -13,7 +34,8 @@ def combine_video_audio(video_path, audio_path, output_path):
     edited_video = edited_video.subclip(0, audio.duration)
     
     # Resize the video to 9:16 aspect ratio and 1080x1920 resolution
-    edited_video = edited_video.resize(newsize=(1080, 1920))
+    #edited_video = edited_video.resize(newsize=(1080, 1920))
+    cropped_video = crop_and_resize(edited_video,target_width=1080,target_height=1350)
     
     edited_video = edited_video.set_audio(audio)
     edited_video.write_videofile(output_path, codec="libx264", audio_codec="aac")

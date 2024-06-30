@@ -1,0 +1,4 @@
+gTTS==2.2.4
+moviepy==1.0.3
+pyfiglet==0.8.post1
+rich==13.4.2
