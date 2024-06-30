@@ -24,7 +24,7 @@ def create_text_clip(words_chunk, start_time, end_time):
     txt_clip = txt_clip.set_start(start_time).set_end(end_time).set_position(('center', 200))
     return txt_clip
 
-def subtitles_main(words):
+def subtitles_main(words, video):
     # Create a list to hold all the TextClips
     text_clips = []
     # Create TextClips for each chunk of 8 words
@@ -43,4 +43,4 @@ def subtitles_main(words):
     final_video.write_videofile("src/output_with_text.mp4", codec="libx264", fps=video.fps)
 
 
-subtitles_main(words)
+subtitles_main(words, video)
