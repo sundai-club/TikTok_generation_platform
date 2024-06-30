@@ -8,7 +8,7 @@ function FileUploader() {
   const [files, setFiles] = useState<File[]>([]);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
 
-  const uploadFile = api.post.uploadFile.useMutation({
+  const uploadFile = api.main.uploadFile.useMutation({
     onSuccess: (data) => {
       setUploadStatus(`File uploaded successfully. Path: ${data.filePath}`);
     },
