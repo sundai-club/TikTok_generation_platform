@@ -28,3 +28,6 @@ def prompt_to_video(model=MODEL_INFINITE_ZOOM,
         result.append(snippet)
 
     return result
+
+test_result = prompt_to_video()
+print(test_result)
