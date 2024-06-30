@@ -65,7 +65,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
       <div className="rounded-xl bg-white/10 p-8">
-        <h1 className="text-5xl font-bold mb-8">File Uploader</h1>
+        <h1 className="text-5xl font-bold mb-8">Upload an epub file</h1>
         <FileUploader />
       </div>
     </main>
