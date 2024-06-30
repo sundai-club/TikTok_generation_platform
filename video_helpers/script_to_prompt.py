@@ -25,7 +25,7 @@ def gpt_step_0(script):
                 ],
             }
         ],
-        max_tokens=300,
+        max_tokens=400,
     )
     return response.choices[0].message.content
 
@@ -36,11 +36,11 @@ def gpt_step_1(code):
             {
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": "You are a product designer. I've attached a moodboard here. In one sentence, what do all of these elements have in common? Answer from a design language perspective, if you were telling another designer to create something similar, including any repeating colors and materials and shapes and textures"},
+                    {"type": "text", "text": "Please use this previously generated code. Each 'text' section is a part of a video. Write a short succinct clear prompt for each video. The video will be an infinite zoom, so the prompt should reflect that and create realistic situations for it, such as a hallway or forest path. Add these to the JSON object with the label 'prompt'. Code: " + code},
                 ],
             }
         ],
-        max_tokens=300,
+        max_tokens=800,
     )
     return response.choices[0].message.content
 
@@ -50,6 +50,6 @@ def gpt_step_1(code):
 
 response = gpt_step_0(SCRIPT)
 print(response)
-#response = gpt_step_1(response)
-#print("BREAK")
-#print(response)
+response = gpt_step_1(response)
+print("BREAK")
+print(response)
