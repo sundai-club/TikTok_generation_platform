@@ -1,3 +1,5 @@
+**A [Sundai Club](https://sundai.club/) Project**
+
 # Book-Digest
 
 ### Instead of re-reading a book -- refresh your memory with a series of short TikTok style videos
