@@ -42,6 +42,7 @@ def generate_speech_and_transcription(text, filename):
             file=audio_file,
             response_format="verbose_json",  
             timestamp_granularities=["word"]  
+        )
     
     return str(speech_file_path), transcription
 
