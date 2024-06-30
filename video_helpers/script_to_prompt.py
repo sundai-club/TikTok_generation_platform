@@ -1,7 +1,7 @@
 import os
-import openai
 from openai import OpenAI
 from dotenv import load_dotenv, find_dotenv
+import json
 
 # Locate the .env file
 dotenv_path = find_dotenv()
@@ -42,7 +42,7 @@ def gpt_step_1(code):
         ],
         max_tokens=800,
     )
-    return response.choices[0].message.content
+    return json.loads(response.choices[0].message.content)
 
 
 # Step 1: Request it to turn the script into sections in an array / json object under the label 'text'

@@ -27,8 +27,6 @@ def prompt_to_video(model=MODEL_INFINITE_ZOOM,
         )
         snippet["mp4"] = output.get("mp4")
         result.append(snippet)
-    print ("output of prompt_to_video: ")
-    print (result)
     return result
 
 #example
