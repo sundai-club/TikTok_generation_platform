@@ -4,6 +4,7 @@ import fs from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 import { db } from "@/server/db";
+import { processJob } from "@/server/lib/process-job";
 
 export const mainRouter = createTRPCRouter({
   uploadFile: publicProcedure
@@ -24,6 +25,8 @@ export const mainRouter = createTRPCRouter({
       });
 
       console.log(`File saved to: ${filePath}`);
+
+      void processJob(newJob.id);
 
       return { 
         message: "File uploaded successfully",
