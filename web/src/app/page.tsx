@@ -10,7 +10,7 @@ function FileUploader() {
 
   const uploadFile = api.main.uploadFile.useMutation({
     onSuccess: (data) => {
-      setUploadStatus(`File uploaded successfully. Path: ${data.filePath}`);
+      setUploadStatus(`File uploaded successfully.`);
     },
     onError: (error) => {
       setUploadStatus(`Error uploading file: ${error.message}`);
