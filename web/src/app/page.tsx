@@ -22,8 +22,13 @@ function FileUploader() {
     acceptedFiles.forEach((file) => {
       const reader = new FileReader();
       reader.onload = () => {
-        const base64String = reader.result as string;
-        uploadFile.mutate({ file: base64String.split(',')[1] });
+        const base64String = reader.result as string | null;
+        if (base64String) {
+          const base64Data = base64String.split(',')[1];
+          if (base64Data) {
+            uploadFile.mutate({ file: base64Data });
+          }
+        }
       };
       reader.readAsDataURL(file);
     });
@@ -33,7 +38,7 @@ function FileUploader() {
 
   return (
     <div {...getRootProps()} className="border-2 border-dashed border-white p-8 rounded-xl cursor-pointer">
-      <input {...getInputProps()} />
+      <input {...getInputProps()} aria-label="File upload" />
       {
         isDragActive ?
           <p>Drop the files here ...</p> :
@@ -41,8 +46,8 @@ function FileUploader() {
       }
       {files.length > 0 ? (
         <div className="mt-4">
-          <h4>Uploaded files:</h4>
-          <ul>
+          <h4 className="text-lg font-semibold">Uploaded files:</h4>
+          <ul className="list-disc list-inside">
             {files.map(file => (
               <li key={file.name}>{file.name} - {file.size} bytes</li>
             ))}
@@ -51,7 +56,7 @@ function FileUploader() {
       ) : (
         <p className="mt-4">No files uploaded yet.</p>
       )}
-      {uploadStatus && <p className="mt-4">{uploadStatus}</p>}
+      {uploadStatus && <p className="mt-4" role="status">{uploadStatus}</p>}
     </div>
   );
 }
