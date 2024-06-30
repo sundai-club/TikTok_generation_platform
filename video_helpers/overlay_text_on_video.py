@@ -1,4 +1,4 @@
-from moviepy.editor import VideoFileClip, ImageClip, CompositeVideoClip
+from moviepy.editor import VideoFileClip, ImageClip, CompositeVideoClip, TextClip
 from PIL import Image, ImageDraw, ImageFont
 
 # Load the video file
