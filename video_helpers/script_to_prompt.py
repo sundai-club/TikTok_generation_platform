@@ -36,7 +36,7 @@ def gpt_step_1(code):
             {
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": "Please use this previously generated code. Each 'text' section is a part of a video. Write a short succinct clear prompt for each video. The video will be an infinite zoom, so the prompt should reflect that and create realistic situations for it, such as a hallway or forest path. Add these to the JSON object with the label 'prompt'. Code: " + code},
+                    {"type": "text", "text": "Each 'text' section in the following code is a part of a video. Come up a unique video scene for each. These shouldn't have people in them, but instead be scenes, such as the middle aisle of an airplane or a path through a tropical jungle. Write a short succinct clear prompt (max 8 words) to create each video. Add these to the JSON object with the label 'prompt'. Code: " + code},
                 ],
             }
         ],
