@@ -1,4 +1,5 @@
-from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip
+from moviepy.editor import VideoFileClip, ImageClip, CompositeVideoClip
+from PIL import Image, ImageDraw, ImageFont
 
 # Load the video file
 video = VideoFileClip("src/output-main.mp4")

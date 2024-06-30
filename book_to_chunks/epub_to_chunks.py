@@ -9,8 +9,8 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 from markdownify import markdownify as md
 
-
 app = FastAPI()
+
 
 class Section(msgspec.Struct):
     tag_name: str
@@ -35,9 +35,9 @@ def chunk_epub(epub_path):
     for root, dirs, files in os.walk(temp_dir):
         for file in files:
             if (
-                file.endswith(".html")
-                or file.endswith(".xhtml")
-                or file.endswith(".htm")
+                    file.endswith(".html")
+                    or file.endswith(".xhtml")
+                    or file.endswith(".htm")
             ):
                 html_files.append(os.path.join(root, file))
 
@@ -77,21 +77,6 @@ def chunk_epub(epub_path):
 
     return sections
 
-# todo: add a route to upload an epub file and return the chunked sections for a more dynamic use case
-# @app.post("/Chunk_from_uploaded_epub/")
-# async def upload_epub(file: UploadFile = File(...)):
-#     temp_file_path = f"temp_{file.filename}"
-#
-#     async with aiofiles.open(temp_file_path, 'wb') as out_file:
-#         content = await file.read()
-#         await out_file.write(content)
-#
-#     try:
-#         sections = chunk_epub(temp_file_path)
-#         return JSONResponse(content=[section.dict() for section in sections])
-#     finally:
-#         os.remove(temp_file_path)
-
 
 @app.get("/process_epub/")
 async def process_epub(file_name: str):
@@ -105,24 +90,33 @@ async def process_epub(file_name: str):
 
     try:
         sections = chunk_epub(epub_path)
-        return JSONResponse(content=[{"section_title": section.title,"content": section.content} for section in sections])
+        return JSONResponse(
+            content=[{"section_title": section.title, "content": section.content} for section in sections])
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/upload_and_chunk_epub")
+async def process_epub(file: UploadFile = File(...)):
+    try:
+        UPLOAD_DIR = Path(__file__).parent / "uploaded_files"
+        UPLOAD_DIR.mkdir(exist_ok=True)
+
+        # Define the path to save the uploaded file
+        file_path = UPLOAD_DIR / file.filename
+
+        # Save the uploaded file
+        with file_path.open("wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        sections = chunk_epub(file_path)
+
+        return JSONResponse(
+            content=[{"section_title": section.title, "content": section.content} for section in sections])
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == '__main__':
-    # Usage
-    # ROOT_ = Path(__file__).parent
-    # DATA_ = ROOT_ / "data"
-    # epub_file = DATA_ / "The 4-Hour Work Week.epub"
-    #
-    # chunked_sections = chunk_epub(epub_file)
-    #
-    # # Print sections
-    # for i, section in enumerate(chunked_sections, 1):
-    #     print(f"Section {i}: {section.title} {section.tag_name}")
-    #     print(f"Content preview: {section.content}...")
-    #     print(f"Length of chapter: {len(section.content)}")
     import uvicorn
 
     uvicorn.run(app, host="127.0.0.1", port=8000)
