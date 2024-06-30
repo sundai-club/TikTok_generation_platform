@@ -33,4 +33,22 @@ export const mainRouter = createTRPCRouter({
         jobId: newJob.id,
       };
     }),
+
+  getJobStatus: publicProcedure
+    .input(z.object({ jobId: z.string() }))
+    .query(async ({ input }) => {
+      const job = await db.job.findUnique({
+        where: { id: parseInt(input.jobId, 10) },
+        select: { status: true },
+      });
+
+      if (!job) {
+        throw new Error("Job not found");
+      }
+
+      return {
+        status: job.status,
+        videoUrl: job.status === "Completed" ? `/video/${input.jobId}` : null,
+      };
+    }),
 });
