@@ -73,8 +73,9 @@ def make_video(json_file, i):
     with open(json_file) as f:
         data = json.load(f)
 
-    script = data[i][script]
-    pipeline(script)
+    script = data[i]['script']
+    pipeline(script, "../data/output.mp4")
 
+make_video("../data/Summarize Text Data.json", 0)
 
     
