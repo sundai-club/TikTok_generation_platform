@@ -28,3 +28,8 @@ fi
 # cd video_helpers
 
 python -m video_helpers.to_script "$inputFilename" "$outputFilename"
+
+if [ ! -f "$outputFilename" ]; then
+  mv /opt/app/data/output.mp4 "$outputFilename"
+fi
+
