@@ -5,6 +5,13 @@
 await import("./src/env.js");
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+    api: {
+        bodyParser: {
+            sizeLimit: "100mb",
+        },
+        responseLimit: "100mb",
+    },
+};
 
 export default config;
