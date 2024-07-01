@@ -79,7 +79,7 @@ def make_video(json_file, i):
         data = json.load(f)
 
     script = data[i]['script']
-    pipeline(script, "../data/output.mp4")
+    pipeline(script, "data/output.mp4")
 
 
 def make_epub_and_scripts(epub_file):
