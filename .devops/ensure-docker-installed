@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+
+if which docker; then
+  echo "docker already installed"
+  exit 0
+fi
+
+if ! which lsb_release; then
+  echo "cannot automatically install docker if this is not ubuntu-based, install it manually"
+  exit 1
+fi
+curl -fsSL https://get.docker.com | bash

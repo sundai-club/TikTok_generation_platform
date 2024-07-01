@@ -1,0 +1,455 @@
+#!/usr/bin/env python3
+
+import signal
+import subprocess
+import os
+import sys
+import time
+import shlex
+import textwrap
+import argparse
+from dotenv import dotenv_values
+
+stop_return_code = None
+
+def stop(signum, frame):
+  global stop_return_code
+  stop_return_code = 0
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--start', action="store_true", help='start the app')
+parser.add_argument('--stop', action="store_true", help='stop the app')
+parser.add_argument('--restart', action="store_true", help='restart the app')
+parser.add_argument('--bash', action="store_true", help='launch a bash terminal in the container')
+parser.add_argument('--deploy', default=None, help='deploy using this env file')
+parser.add_argument('--watch-remote', default=None, help='monitor logs on the remote server')
+
+ENV_FILE = '.env'
+
+def run(cmd, get_output=False, ignore_error=False):
+  print(cmd)
+  return subprocess.run(cmd, check=not ignore_error, capture_output=get_output, text=get_output)
+
+def bash(cmd, get_output=False, ignore_error=False):
+  return run(['bash', '-c', 'set -e; set -x; ' + cmd], get_output, ignore_error)
+
+def main():
+  os.chdir('/opt/app')
+
+  args = parser.parse_args()
+
+  start = args.start
+
+  env = dotenv_values(ENV_FILE)
+
+  os.chdir('/opt/app/web')
+
+  app_name = env['APP_NAME'] # this is assured to be set from the outer ./run
+
+  signal.signal(signal.SIGTERM, stop)
+  signal.signal(signal.SIGINT, stop)
+
+  def mkdir_if_not_exists(path):
+    if not os.path.exists(path):
+      os.mkdir(path)
+    os.chmod(path, 0o777)
+
+  mkdir_if_not_exists('/store/public')
+
+  app_started_by_me = False
+
+  def stop_if_started_by_me():
+    if app_started_by_me:
+      stop_app()
+
+  def stop_app():
+    run(['npx', 'pm2', 'kill'], ignore_error=True)
+
+  def start_app():
+    bash('npx pm2 start ../.devops/ecosystem.config.js')
+
+    print('pm2 launched')
+
+  if not os.path.exists('/.app-started'):
+    with open('/.app-started', 'w') as f:
+      f.write('true')
+
+    app_started_by_me = True
+
+    print('starting app...')
+
+    # nginx config generation
+
+    def nginx_proxy_location_part(location_path, forward_to_port, require_admin, forward_to_host='localhost', forward_to_base_path='/'):
+      if require_admin:
+        admin_part = '''
+          auth_basic "admin";
+          auth_basic_user_file /.htpasswd-admin;
+        '''
+      else:
+        admin_part = ''
+
+      return f'''
+        location {location_path} {{
+          proxy_pass http://{forward_to_host}:{forward_to_port}{forward_to_base_path};
+
+          absolute_redirect off;
+
+          proxy_http_version 1.1;
+
+          proxy_set_header Host $http_host;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection upgrade;
+          proxy_set_header Accept-Encoding gzip;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+
+          {admin_part}
+        }}
+      '''
+
+    def nginx_join(*parts):
+      return '\n\n'.join(parts)
+
+    def nginx_server_part(domain):
+      server_name = domain or f'localhost:8000'
+
+      ssl_certificate_part = '' if domain is None else f'''
+        ssl_certificate /etc/letsencrypt/live/{domain}/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/{domain}/privkey.pem;
+      '''
+
+      ssl_redirect_part = '' if domain is None else f'''
+        server {{
+          server_name {domain};
+
+          listen 80;
+
+          return 301 https://{domain}$request_uri;
+        }}
+      '''
+
+      internal_parts = nginx_join(
+        nginx_proxy_location_part('/', 8001, require_admin=False),
+        nginx_proxy_location_part('/socket.io/', 8002, require_admin=False, forward_to_base_path='/socket.io/'),
+        nginx_proxy_location_part('/code/', 8003, require_admin=True),
+        nginx_proxy_location_part('/adminer/', 8004, require_admin=True),
+      )
+
+      return f'''
+        server {{
+          server_name {server_name};
+
+          {"listen 443 ssl http2" if domain else "listen 8000"};
+
+          {ssl_certificate_part}
+
+          proxy_cache mycache;
+          add_header Nginx-Cache-Status $upstream_cache_status;
+
+          client_max_body_size 100M;
+          gzip on;
+          gzip_vary on;
+          gzip_min_length 10240;
+          gzip_proxied expired no-cache no-store private auth;
+          gzip_types text/plain text/css text/xml text/javascript application/javascript application/x-javascript application/xml;
+          proxy_connect_timeout 300;
+          proxy_send_timeout 300;
+          proxy_read_timeout 300;
+          send_timeout 300;
+
+          {internal_parts}
+        }}
+
+        {ssl_redirect_part}
+      '''
+
+    domain = env.get('DOMAIN')
+    if env.get('EXTERNAL_ACCESS') not in [None, 'inside_container', 'outside_container']:
+      raise Error('invalid EXTERNAL_ACCESS value: ' + env.get('EXTERNAL_ACCESS'))
+    ssl_inside_container = env.get('EXTERNAL_ACCESS') != 'outside_container'
+    if ssl_inside_container and not domain:
+      raise Error('cannot have external access without a domain')
+    server_parts = []
+
+    server_parts.append(nginx_server_part(None))
+    if ssl_inside_container:
+      server_parts.append(nginx_server_part(domain))
+
+    nginx_config = nginx_join(
+      '''
+        proxy_cache_path /opt/nginx-cache keys_zone=mycache:10m max_size=1g;
+      ''',
+      *server_parts
+    )
+
+    # install npm packages
+
+    bash('python3 -u ../.devops/ensure-npm-install')
+
+    bash('cd .. && pip3 install --break-system-packages -r requirements.txt')
+
+    # launch code-server
+    # bash('''
+    #   (
+    #     code-server --install-extension bradlc.vscode-tailwindcss
+    #     code-server --install-extension dsznajder.es7-react-js-snippets
+    #     code-server --install-extension ms-python.python
+    #     code-server --install-extension Prisma.prisma
+    #     code-server --install-extension dbaeumer.vscode-eslint
+    #     code-server --install-extension esbenp.prettier-vscode
+    #     code-server --install-extension mhutchie.git-graph
+
+    #     code-server --bind-addr 0.0.0.0:8003 --auth none --cert false /opt/app
+    #   ) &
+    # ''')
+    # NOW IN PM2
+
+    bash('npx pm2 start ../.devops/ecosystem.config.js --only code-server')
+
+    # load apt database
+
+    bash('apt-get update > /dev/null 2>/dev/null &')
+
+    # start cron, to enable certbot renewals to happen automatically
+    # (certbot automatically sets this up)
+
+    # bash('/etc/init.d/cron start') -- NOW IN PM2
+
+    bash('npx pm2 start ../.devops/ecosystem.config.js --only cron')
+
+    # start nginx
+
+    # bash('/etc/init.d/nginx start') -- NOW IN PM2
+
+    bash('npx pm2 start ../.devops/ecosystem.config.js --only nginx')
+
+    # set up ssl
+
+    if ssl_inside_container:
+      bash(f'certbot certonly -n --nginx -d {shlex.quote(domain)} -m "certbot-notifications@tkeith.com" --agree-tos')
+
+    # configure nginx
+
+    bash('rm -f /etc/nginx/conf.d/*')
+    with open('/etc/nginx/conf.d/app.conf', 'w') as f:
+      f.write(nginx_config)
+
+    bash(f'''
+      rm -f /.htpasswd-admin
+      htpasswd -b -c /.htpasswd-admin admin {shlex.quote(env["ADMIN_PASSWORD"])}
+      npx pm2 restart nginx
+    ''')
+
+    # fix permissions of volumes
+
+    bash('chown -R postgres /var/lib/postgresql')
+    bash('chown -R redis /var/lib/redis')
+
+    # configure redis
+
+    bash('''
+      sed -i 's/^appendonly no/appendonly yes/' /etc/redis/redis.conf
+    ''')
+    bash('''
+      sed -i 's/^daemonize yes/daemonize no/' /etc/redis/redis.conf
+    ''')
+
+    # start redis
+
+    bash('npx pm2 start ../.devops/ecosystem.config.js --only redis')
+
+    # start & set up postgres
+
+    bash('npx pm2 start ../.devops/ecosystem.config.js --only postgres')
+
+    while bash('''
+      sudo -u postgres psql -c "SELECT 1 as id"
+    ''', ignore_error=True).returncode != 0:
+      print('waiting for postgres to start up...')
+      time.sleep(0.25)
+
+    # make sure postgres user has password
+
+    bash('''
+      sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres'"
+    ''')
+
+    # create app database if it doesn't exist
+
+    bash('''
+      sudo -u postgres psql -c "create database app" || true
+    ''')
+
+    # start adminer
+    bash('npx pm2 start ../.devops/ecosystem.config.js --only adminer')
+
+    if start:
+      start_app()
+
+    with open('/.app-start-complete', 'w') as f:
+      f.write('true')
+  else:
+    while not os.path.exists('/.app-start-complete'):
+      print('waiting for app startup to complete...')
+      time.sleep(0.25)
+
+  # if start and not args.start_background:
+  if start:
+    bash('npx pm2 logs &')
+    # wait forever and monitor processes
+
+    while stop_return_code is None:
+      time.sleep(0.25)
+
+    # # watch pm2 logs
+    # print('watching pm2 logs...')
+    # subprocess.run(['npx', 'pm2', 'logs'])
+
+    print('stop_return_code:', stop_return_code)
+
+  if args.bash:
+    subprocess.run(['bash'])
+
+  if args.restart:
+    stop_app()
+    start_app()
+
+  def get_host(deploy_env):
+    host = deploy_env.get('DEPLOY_TO')
+    if not host:
+      host = deploy_env.get('DOMAIN')
+    if not host:
+      print('*** must provide HOST or DOMAIN in .env ***')
+      stop_if_started_by_me()
+      sys.exit(1)
+    print('get_host: returning', host)
+    return host
+
+  if args.watch_remote:
+    deploy_env = dotenv_values(args.watch_remote)
+    host = get_host(deploy_env)
+    run([
+      'ssh',
+      f'root@{host}',
+      f'''
+        journalctl -u {app_name} -f -n 100
+      ''',
+    ])
+
+  if args.deploy:
+    deploy_env = dotenv_values(args.deploy)
+    host = get_host(deploy_env)
+
+    service_config = textwrap.dedent(f'''
+      [Unit]
+      Description={app_name}
+      Requires=docker.service
+      After=docker.service
+      StartLimitIntervalSec=300
+      StartLimitBurst=10
+
+      [Service]
+      User=root
+      WorkingDirectory=/opt/{app_name}
+      ExecStart=/opt/{app_name}/.devops/run
+      Restart=on-failure
+      RestartSec=5
+      KillSignal=SIGINT
+      Type=simple
+
+      [Install]
+      WantedBy=multi-user.target
+    ''')
+
+    # stop old service
+    run([
+      'ssh',
+      f'root@{host}',
+      f'''
+        systemctl stop {app_name} || true
+      ''',
+    ])
+
+    rsync_include = [
+      # DIRS
+      '.devops',
+      # '.vscode',
+      # 'scratch',
+
+      # FILES
+      'README.md',
+      # 'run',
+      'bin',
+      'book_to_chunks',
+      'end2end',
+      'requirements.txt',
+      'video_helpers',
+    ]
+
+    rsync_include_web = [
+      '.env',
+      'prisma',
+      'src',
+      'public',
+      'package.json',
+      'package-lock.json',
+      'tsconfig.json',
+      '.eslintrc.cjs',
+      'next-env.d.ts',
+      'next.config.js',
+      'postcss.config.cjs',
+      'prettier.config.js',
+      'tailwind.config.ts',
+    ]
+
+
+    # chdir to /opt/app
+    os.chdir('/opt/app')
+
+    run([
+    'rsync',
+      '-av',
+      '--no-owner',
+      '--no-group',
+      '--delete-after',
+      *[f'{shlex.quote(i)}' for i in rsync_include],
+      f'root@{host}:/opt/{app_name}/',
+    ])
+
+    # chdir to /opt/app/web
+    os.chdir('/opt/app/web')
+
+    run([
+    'rsync',
+      '-av',
+      '--no-owner',
+      '--no-group',
+      '--delete-after',
+      *[f'{shlex.quote(i)}' for i in rsync_include_web],
+      f'root@{host}:/opt/{app_name}/web/',
+    ])
+
+    new_env_file = '\n'.join(f'{k}={shlex.quote(v)}' for k, v in deploy_env.items())
+
+    run([
+      'ssh',
+      f'root@{host}',
+      f'''
+        echo {shlex.quote(new_env_file)} > /opt/{app_name}/.env
+        echo {shlex.quote(service_config)} > /etc/systemd/system/{app_name}.service
+        systemctl daemon-reload
+        systemctl enable {app_name}
+        systemctl start {app_name}
+      ''',
+    ])
+
+    print('\n*** deployed successfully ***\n')
+
+  # if not args.start_background:
+  #   stop_if_started_by_me()
+
+  stop_if_started_by_me()
+
+if __name__ == '__main__':
+  main()

@@ -1,5 +1,7 @@
 from moviepy.editor import VideoFileClip, AudioFileClip, concatenate_videoclips
 
+from overlay_text_on_video import subtitles_main
+
 def crop_and_resize(video,target_width=1080,target_height=1350):
     # Resize if necessary
     if video.w < target_width or video.h < target_height:
@@ -21,7 +23,7 @@ def crop_and_resize(video,target_width=1080,target_height=1350):
     
     
 
-def combine_video_audio(video_path, audio_path, output_path):
+def combine_video_audio(video_path, audio_path, words, output_path):
     # Load the video and audio files
     video = VideoFileClip(video_path)
     audio = AudioFileClip(audio_path)
@@ -37,7 +39,10 @@ def combine_video_audio(video_path, audio_path, output_path):
     cropped_video = crop_and_resize(edited_video,target_width=1080,target_height=1350)
     
     cropped_video = cropped_video.set_audio(audio)
+    cropped_video = subtitles_main(words, cropped_video)
+    
     cropped_video.write_videofile(output_path, codec="libx264", audio_codec="aac")
+    
 
 def combine_videos(video_paths, output_path):
     # Load all video clips

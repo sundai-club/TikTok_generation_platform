@@ -42,7 +42,7 @@ def subtitles_main(words, video):
     final_video = CompositeVideoClip([video] + text_clips)
 
     # Write the final video to a file
-    #final_video.write_videofile("src/output_with_text.mp4", codec="libx264", fps=video.fps)
+    # #final_video.write_videofile("src/output_with_text.mp4", codec="libx264", fps=video.fps)
     return final_video
 
 

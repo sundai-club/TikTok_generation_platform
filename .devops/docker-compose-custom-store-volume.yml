@@ -1,0 +1,6 @@
+version: "3.8"
+
+services:
+  app:
+    volumes:
+      - ${CUSTOM_STORE_VOLUME_PATH}:/store

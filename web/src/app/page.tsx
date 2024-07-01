@@ -1,8 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-misused-promises */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 "use client";
 
 import { useCallback, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { api } from "@/trpc/react";
 
 function VideoPlayer({ videoUrl }: { videoUrl: string }) {
   return (
@@ -23,49 +27,61 @@ function FileUploader() {
   const [jobStatus, setJobStatus] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
-  const uploadFile = api.main.uploadFile.useMutation({
-    onSuccess: (data) => {
+  const uploadFile = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const data = await response.json();
+      console.log(`File uploaded successfully. Job ID: ${data.jobId}`);
       setUploadStatus(`File uploaded successfully. Job ID: ${data.jobId}`);
       setJobId(data.jobId.toString());
-    },
-    onError: (error) => {
-      setUploadStatus(`Error uploading file: ${error.message}`);
-    },
-  });
-
-  const getJobStatus = api.main.getJobStatus.useQuery(
-    { jobId: jobId ?? "" },
-    {
-      enabled: !!jobId,
-      refetchInterval: 1000,
+    } catch (error) {
+      console.error(`Error uploading file:`, error);
+      setUploadStatus(`Error uploading file: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-  );
+  };
+
+  const getJobStatus = async () => {
+    if (!jobId) return;
+
+    try {
+      const response = await fetch(`/api/job-status?jobId=${jobId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch job status');
+      }
+      const data = await response.json();
+      setJobStatus(data.status);
+      if (data.videoUrl) {
+        setVideoUrl(data.videoUrl);
+      }
+    } catch (error) {
+      console.error('Error fetching job status:', error);
+    }
+  };
 
   useEffect(() => {
-    if (getJobStatus.data) {
-      setJobStatus(getJobStatus.data.status);
-      if (getJobStatus.data.videoUrl) {
-        setVideoUrl(getJobStatus.data.videoUrl);
-      }
+    if (jobId) {
+      const interval = setInterval(getJobStatus, 1000);
+      return () => clearInterval(interval);
     }
-  }, [getJobStatus.data]);
+  }, [jobId]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFiles(acceptedFiles);
     acceptedFiles.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64String = reader.result as string | null;
-        if (base64String) {
-          const base64Data = base64String.split(',')[1];
-          if (base64Data) {
-            uploadFile.mutate({ file: base64Data });
-          }
-        }
-      };
-      reader.readAsDataURL(file);
+      void uploadFile(file);
     });
-  }, [uploadFile]);
+  }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 

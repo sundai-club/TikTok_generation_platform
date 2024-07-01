@@ -1,0 +1,168 @@
+#!/usr/bin/env python3
+
+import os
+import os.path
+import random
+import string
+import subprocess
+import sys
+import argparse
+
+def load_env(filename):
+    env_dict = {}
+    with open(filename, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if line and not line.startswith('#'):  # Skip empty lines and comments
+                key, value = line.split('=', 1)
+                value = value.strip()
+
+                # Remove single or double quotes from the value
+                if (value.startswith('"') and value.endswith('"')) or \
+                   (value.startswith("'") and value.endswith("'")):
+                    value = value[1:-1]
+
+                env_dict[key] = value
+
+    return env_dict
+
+parser = argparse.ArgumentParser()
+# parser.add_argument('--env', type=str, default='.env', help='env file to use') -- no longer supporting custom env as it's confusing with either attempting to load it into next.js or have a different file structure inside the docker container than outside
+parser.add_argument('--clear-data', action="store_true", help='clear all data for the app')
+parser.add_argument('--start', action="store_true", help='start the app')
+parser.add_argument('--stop', action="store_true", help='stop the app')
+parser.add_argument('--restart', action="store_true", help='restart the app')
+parser.add_argument('--bash', action="store_true", help='launch a bash terminal in the container')
+parser.add_argument('--deploy', default=None, help='deploy using this env file')
+parser.add_argument('--watch-remote', default=None, help='monitor logs on the remote server')
+
+default_id_chars = string.ascii_lowercase + string.ascii_uppercase + string.digits
+
+def rand_id(length=22, chars=default_id_chars):
+  return ''.join(random.SystemRandom().choice(chars) for i in range(length))
+
+def run(cmd, get_output=False, ignore_error=False):
+  return subprocess.run(cmd, check=not ignore_error, capture_output=get_output, text=get_output)
+
+def bash(cmd, get_output=False, ignore_error=False):
+  return run(['bash', '-c', 'set -e; set -x; ' + cmd], get_output, ignore_error)
+
+def main():
+  app_dir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+  print('app_dir: ' + app_dir)
+  os.chdir(app_dir)
+
+  if os.path.exists('/.dockerenv'):
+    run(['python3', '.devops/docker-run', *sys.argv[1:]])
+    sys.exit(0)
+
+  args = parser.parse_args()
+
+  start = False
+  if not (args.deploy or args.stop or args.watch_remote or args.bash or args.restart):
+    start = True
+  # if args.start or args.start_background:
+  if args.start:
+    start = True
+
+  is_linux = subprocess.call(['which', 'lsb_release']) == 0
+
+  def populate_env_file(env_file):
+    env = load_env(env_file)
+
+    def add_to_env(key, value):
+      with open(env_file, 'a') as f:
+        f.write(f'\n{key}={value}\n')
+      print(f'added {key}={value} to {env_file}')
+
+    app_dir_basename = os.path.basename(app_dir)
+    app_name = env.get('APP_NAME')
+    if not app_name:
+      app_name = app_dir_basename
+      print('APP_NAME not set in .env, using app directory name: ' + app_name)
+      add_to_env('APP_NAME', app_name)
+
+    # populate other needed values in the env file
+    # ADMIN_PASSWORD
+    if not env.get('ADMIN_PASSWORD'):
+      add_to_env('ADMIN_PASSWORD', rand_id())
+
+  ENV_FILE = '.env'
+
+  populate_env_file(ENV_FILE)
+
+  if args.deploy:
+    populate_env_file(args.deploy)
+
+  env = load_env(ENV_FILE)
+
+  app_name = env['APP_NAME']
+
+  docker_compose_project_name = app_name
+
+  domain = env.get('DOMAIN')
+  if env.get('EXTERNAL_ACCESS') not in [None, 'inside_container', 'outside_container']:
+    raise Error('invalid EXTERNAL_ACCESS value: ' + env.get('EXTERNAL_ACCESS'))
+  ssl_inside_container = env.get('EXTERNAL_ACCESS') != 'outside_container'
+  if ssl_inside_container and not domain:
+    raise Error('cannot have external access without a domain')
+
+  compose_command_base = ['docker', 'compose', '-p', docker_compose_project_name]
+
+  def add_compose_file(file):
+    compose_command_base.extend(['-f', '.devops/' + file])
+
+  add_compose_file('docker-compose.yml')
+
+  if start:
+    add_compose_file('docker-compose-local.yml')
+    # below removed -- it caused listening to happen on 127.17.0.1 which isn't needed
+    # if is_linux:
+    #   add_compose_file('docker-compose-local-linux.yml')
+    if ssl_inside_container:
+      add_compose_file('docker-compose-public.yml')
+
+  if env.get('CUSTOM_STORE_VOLUME_PATH'):
+    os.environ['CUSTOM_STORE_VOLUME_PATH'] = env['CUSTOM_STORE_VOLUME_PATH'] # so that docker compose can use it
+    add_compose_file('docker-compose-custom-store-volume.yml')
+  else:
+    add_compose_file('docker-compose-auto-store-volume.yml')
+
+  def run_compose_command(cmd, **kwargs):
+    return run(compose_command_base + cmd, **kwargs)
+
+  # install docker if needed
+  bash('''
+    .devops/ensure-docker-installed
+  ''')
+
+  if args.clear_data:
+    run_compose_command(['down', '--volumes', '--remove-orphans'])
+    sys.exit(0)
+
+  if args.stop:
+    run_compose_command(['down', '--remove-orphans'])
+    sys.exit(0)
+
+  tty_part = ['-it'] if sys.stdin.isatty() else ['-T']
+
+  if len(run_compose_command(['ps', '-a', '--status=running', '-q'], get_output=True).stdout.strip()) > 0:
+    print('compose project already running')
+    run_compose_command(['exec'] + tty_part + ['app', './run'] + sys.argv[1:])
+    sys.exit(0)
+
+  run_compose_command(['build'])
+  run_compose_command(['down', '--remove-orphans'])
+
+  start_part = []
+  if start and not args.start:
+    start_part = ['--start']
+
+  try:
+    run_compose_command(['run', '--service-ports', '--rm'] + tty_part + ['app', '.devops/docker-run'] + sys.argv[1:] + start_part)
+
+  finally:
+    run_compose_command(['down', '--remove-orphans'])
+
+if __name__ == '__main__':
+  main()
