@@ -27,7 +27,7 @@ def extract_text_list(data):
 def generate_speech_and_transcription(text, filename):
     client = OpenAI()
     
-    speech_file_path = Path("./" + filename + ".mp3")
+    speech_file_path = Path("../data/" + filename + ".mp3")
     
     speech_response = client.audio.speech.create(
         model="tts-1",  # Choose the model

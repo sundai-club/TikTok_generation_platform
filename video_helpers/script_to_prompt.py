@@ -68,7 +68,7 @@ def gpt_step_1(code):
             {
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": "Each 'text' section in the following code is a part of a video. Come up a unique video scene for each. These shouldn't have people in them, but instead be scenes, such as the middle aisle of an airplane or a path through a tropical jungle. Write a short succinct clear prompt (max 8 words) to create each video. Add these to the JSON object with the label 'prompt'. Code: " + code},
+                    {"type": "text", "text": "Each 'text' section in the following code is a part of a script. Come up a unique scene for each section. These should be place-specific scenes, such as the middle aisle of an airplane, a path through a tropical jungle, or the middle of a city street surrounded by high-rises. Write a short succinct clear prompt (max 9 words) to generate each video. Add these to the JSON object with the label 'prompt'. Code: " + code},
                 ],
             }
         ],
