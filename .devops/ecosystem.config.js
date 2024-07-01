@@ -31,20 +31,27 @@ module.exports = {
       ignore_watch: ignoreWatchList,
       time: true,
     },
-    // {
-    //   name: "code-server",
-    //   script: `bash -c '
-    //       code-server --install-extension bradlc.vscode-tailwindcss
-    //       code-server --install-extension dsznajder.es7-react-js-snippets
-    //       code-server --install-extension ms-python.python
-    //       code-server --install-extension Prisma.prisma
-    //       code-server --install-extension dbaeumer.vscode-eslint
-    //       code-server --install-extension esbenp.prettier-vscode
-    //       code-server --install-extension mhutchie.git-graph
-    //       code-server --bind-addr 0.0.0.0:8003 --auth none --cert false /opt/app
-    //     '`,
-    //   time: true,
-    // },
+    {
+      name: "background",
+      script: "npx tsx ./src/scripts/background.ts",
+      watch: true,
+      ignore_watch: ignoreWatchList,
+      time: true,
+    },
+    {
+      name: "code-server",
+      script: `bash -c '
+          code-server --install-extension bradlc.vscode-tailwindcss
+          code-server --install-extension dsznajder.es7-react-js-snippets
+          code-server --install-extension ms-python.python
+          code-server --install-extension Prisma.prisma
+          code-server --install-extension dbaeumer.vscode-eslint
+          code-server --install-extension esbenp.prettier-vscode
+          code-server --install-extension mhutchie.git-graph
+          code-server --bind-addr 0.0.0.0:8003 --auth none --cert false /opt/app
+        '`,
+      time: true,
+    },
     {
       name: "cron",
       script: "cron -f",

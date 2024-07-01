@@ -25,10 +25,12 @@ function FileUploader() {
 
   const uploadFile = api.main.uploadFile.useMutation({
     onSuccess: (data) => {
+      console.log(`File uploaded successfully. Job ID: ${data.jobId}`);
       setUploadStatus(`File uploaded successfully. Job ID: ${data.jobId}`);
       setJobId(data.jobId.toString());
     },
     onError: (error) => {
+      console.log(`Error uploading file: ${error.message}`);
       setUploadStatus(`Error uploading file: ${error.message}`);
     },
   });

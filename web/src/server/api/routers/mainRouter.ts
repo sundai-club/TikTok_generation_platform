@@ -32,7 +32,7 @@ export const mainRouter = createTRPCRouter({
 
       console.log(`New job created with ID: ${newJob.id}`);
 
-      void processJob(newJob.id);
+      // void processJob(newJob.id);
       console.log(`Job processing started for job ID: ${newJob.id}`);
 
       return { 

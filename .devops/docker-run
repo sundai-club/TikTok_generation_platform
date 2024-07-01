@@ -205,6 +205,8 @@ def main():
     # ''')
     # NOW IN PM2
 
+    bash('npx pm2 start ../.devops/ecosystem.config.js --only code-server')
+
     # load apt database
 
     bash('apt-get update > /dev/null 2>/dev/null &')
@@ -350,7 +352,7 @@ def main():
       [Service]
       User=root
       WorkingDirectory=/opt/{app_name}
-      ExecStart=/opt/{app_name}/run
+      ExecStart=/opt/{app_name}/.devops/run
       Restart=on-failure
       RestartSec=5
       KillSignal=SIGINT
@@ -372,26 +374,38 @@ def main():
     rsync_include = [
       # DIRS
       '.devops',
-      '.vscode',
+      # '.vscode',
       # 'scratch',
+
+      # FILES
+      'README.md',
+      # 'run',
+      'bin',
+      'book_to_chunks',
+      'end2end',
+      'requirements.txt',
+      'video_helpers',
+    ]
+
+    rsync_include_web = [
+      '.env',
       'prisma',
       'src',
       'public',
-      'static',
-
-      # FILES
       'package.json',
       'package-lock.json',
       'tsconfig.json',
       '.eslintrc.cjs',
       'next-env.d.ts',
-      'next.config.mjs',
+      'next.config.js',
       'postcss.config.cjs',
-      'prettier.config.mjs',
-      'README.md',
-      'run',
+      'prettier.config.js',
       'tailwind.config.ts',
     ]
+
+
+    # chdir to /opt/app
+    os.chdir('/opt/app')
 
     run([
     'rsync',
@@ -401,6 +415,19 @@ def main():
       '--delete-after',
       *[f'{shlex.quote(i)}' for i in rsync_include],
       f'root@{host}:/opt/{app_name}/',
+    ])
+
+    # chdir to /opt/app/web
+    os.chdir('/opt/app/web')
+
+    run([
+    'rsync',
+      '-av',
+      '--no-owner',
+      '--no-group',
+      '--delete-after',
+      *[f'{shlex.quote(i)}' for i in rsync_include_web],
+      f'root@{host}:/opt/{app_name}/web/',
     ])
 
     new_env_file = '\n'.join(f'{k}={shlex.quote(v)}' for k, v in deploy_env.items())
