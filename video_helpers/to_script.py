@@ -4,7 +4,7 @@ from openai import OpenAI
 from dotenv import load_dotenv, find_dotenv
 import json
 import re
-from pipeline import pipeline
+from .pipeline import pipeline
 
 # Locate the .env file
 dotenv_path = find_dotenv()
@@ -12,7 +12,7 @@ load_dotenv(dotenv_path)
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 REPLICATE_API_TOKEN = os.getenv('REPLICATE_API_TOKEN')
 ANTHROPIC_API_KEY = os.getenv('ANTHROPIC_API_KEY')
-from ..book_to_chunks.epub_to_chunks import process_epub
+#from ..book_to_chunks.epub_to_chunks import process_epub
 
 # SCRIPT = "In a world where efficient travel and remote living were becoming increasingly important, a group of savvy globetrotters shared their secrets for streamlining life on the go. Nathalie introduced Earth Class Mail, a service that digitized physical mail, allowing nomads to manage their correspondence from anywhere. Andrew chimed in, adding that he used GreenByPhone to process checks electronically, creating a seamless financial system across different states. A seasoned female traveler and new mom then offered her insights, recommending quick-dry, versatile clothing from Athleta, and essential gadgets like a portable sound machine for better sleep on the road. She didn't stop there, sharing her must-haves for traveling with a baby, including a comfortable sling and a portable tent that doubled as a familiar sleep space. The conversation concluded with tips on navigating air travel with little ones, from choosing the right carry-on size to keeping babies comfortable during takeoff and landing. These modern adventurers had cracked the code to effortless, family-friendly globe-trotting, turning the dream of a flexible, location-independent lifestyle into a reality."
 # prompt: make a claude api call and pass in the chapter
@@ -83,14 +83,17 @@ def make_video(json_file, i):
 
 
 def make_epub_and_scripts(epub_file):
-    json_data = process_epub(epub_file)
-    with open('../data/book.json', 'w') as f:
-        json.dump(json_data, f)
+    # json_data = process_epub(epub_file)
+    # with open('../data/book.json', 'w') as f:
+    #     json.dump(json_data, f)
 
-    get_all_scripts_from_json('../data/book.json')
+    with open(epub_file) as f:
+        text = f.read()
+
+    #get_all_scripts_from_json('../data/book.json')
 
 
-make_video("../data/Summarize Text Data.json", 5)
+#make_video("../data/Summarize Text Data.json", 5)
 
 
 def get_script_from_json(json_file, i):
@@ -118,5 +121,9 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    make_epub_and_one_script_and_one_video(args.epub_file, args.mp4_file)
+    script = get_script_from_chunk(open(args.epub_file).read())
+
+    pipeline(script, args.mp4_file)
+
+    #make_epub_and_one_script_and_one_video(args.epub_file, args.mp4_file)
 

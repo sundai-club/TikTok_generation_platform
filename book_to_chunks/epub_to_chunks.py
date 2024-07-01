@@ -11,7 +11,6 @@ from markdownify import markdownify as md
 
 app = FastAPI()
 
-
 class Section(msgspec.Struct):
     tag_name: str
     title: str
