@@ -15,8 +15,9 @@ def pipeline(script, output_path):
     # create video from script
     print('script: ',script)
     parsed_script = gpt_step_0(script)
-    print('parsed_script: ', parsed_script)
+    print('parsed_script 1: ', parsed_script)
     parsed_script = gpt_step_1(parsed_script)
+    print('parsed_script 2: ', parsed_script)
     prompt = prompt_to_video(parsed_script = parsed_script)
     
     i = 0
@@ -28,7 +29,7 @@ def pipeline(script, output_path):
         print(f"Audio File Saved: {audio_path}")
         print(f"transcription_data: {transcription_data}")
         # combine video and audio
-        output_video_path = "../data/output_"+str(i)+".mp4"
+        output_video_path = "data/output_"+str(i)+".mp4"
         combine_video_audio(item['video_path'], audio_path, transcription_data.words, output_video_path)
         output_video_paths.append(output_video_path)
     
