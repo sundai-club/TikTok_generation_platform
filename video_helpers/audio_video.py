@@ -39,7 +39,7 @@ def combine_video_audio(video_path, audio_path, words, output_path):
     cropped_video = crop_and_resize(edited_video,target_width=1080,target_height=1350)
     
     cropped_video = cropped_video.set_audio(audio)
-    cropped_video = subtitles_main(words, cropped_video)
+    # cropped_video = subtitles_main(words, cropped_video)
     
     cropped_video.write_videofile(output_path, codec="libx264", audio_codec="aac")
     
