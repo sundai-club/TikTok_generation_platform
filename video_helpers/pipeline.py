@@ -1,4 +1,4 @@
-from . import prompt_to_video
+from .prompt_to_video import prompt_to_video
 from .script_to_prompt import gpt_step_0, gpt_step_1
 import json
 
