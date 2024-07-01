@@ -43,3 +43,32 @@ pip install -r requirements.txt
 ```bash
 brew install imagemagick
 ```
+
+# Running web UI & pipeline
+
+## Production
+
+Update your prod.env:
+
+```
+DOMAIN=digest.sundai.club
+EXTERNAL_ACCESS=outside_container
+NODE_ENV=production
+APP_NAME=sundai-digest
+ADMIN_PASSWORD=replace-with-a-random-value
+REPLICATE_API_TOKEN=replace-with-real-api-key
+OPENAI_API_KEY=replace-with-real-api-key
+ANTHROPIC_API_KEY=replace-with-real-api-key
+```
+
+Deploy: `.devops/run --deploy prod.env`
+
+The server to which it's deployed (`digest.sundai.club`, in this case) will be running the app at `http://localhost:3569/`, so a reverse proxy (like nginx) should be set up to proxy the real traffic (in this case, at `https://digest.sundai.club/` to `http://localhost:3569/`).
+
+## Dev mode
+
+Update your .env: Same as prod.env above but change NODE_ENV to `development`
+
+Run: `.devops/run`
+
+Access locally at `http://localhost:3569/`
