@@ -13,7 +13,7 @@ def create_text_clip(words_chunk, start_time, end_time):
     text = ' '.join([word['word'] for word in words_chunk])
     txt_clip = TextClip(
             text,
-            font='Roboto', # Change Font if not found
+            font='DejaVuSans', # Change Font if not found
             fontsize=64,
             color="white",
             align='center',
