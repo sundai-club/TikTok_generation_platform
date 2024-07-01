@@ -64,4 +64,4 @@ def prompt_to_video(parsed_script):
 
 if __name__ == "__main__":
     load_dotenv()
-    prompt_to_video(TEST_SCRIPT)
+    print(prompt_to_video(TEST_SCRIPT))

@@ -74,6 +74,7 @@ def gpt_step_1(code):
         ],
         max_tokens=800,
     )
+    print(response)
     return json.loads(response.choices[0].message.content)
 
 

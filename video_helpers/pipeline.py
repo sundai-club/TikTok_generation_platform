@@ -13,13 +13,15 @@ PROMPT = json.loads('''[{"text": "In a world where efficient travel and remote l
 def pipeline(script, output_path):
     
     # create video from script
-    # parsed_script = gpt_step_0(script)
-    # parsed_script = gpt_step_1(parsed_script)
-    # prompt = prompt_to_video(parsed_script = parsed_script)
+    print('script: ',script)
+    parsed_script = gpt_step_0(script)
+    print('parsed_script: ', parsed_script)
+    parsed_script = gpt_step_1(parsed_script)
+    prompt = prompt_to_video(parsed_script = parsed_script)
     
     i = 0
     output_video_paths = []
-    for item in PROMPT:
+    for item in prompt:
         i += 1
         # create audio from script
         audio_path, transcription_data = generate_speech_and_transcription(item['text'], filename="Generate_speech_"+str(i))
@@ -35,4 +37,4 @@ def pipeline(script, output_path):
     print(output_video_paths)
     combine_videos(output_video_paths, output_path)
     
-pipeline(SCRIPT, "../data/output.mp4")
+# pipeline(SCRIPT, "../data/output.mp4")
