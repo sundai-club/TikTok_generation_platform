@@ -85,3 +85,20 @@ def make_epub_and_scripts(epub_file):
     get_all_scripts_from_json('../data/book.json')
 
 make_video("../data/Summarize Text Data.json", 5)
+
+
+def get_script_from_json(json_file, i):
+    with open(json_file) as f:
+        data = json.load(f)
+
+    chunk = data[i]['content']
+    script = get_script_from_chunk(chunk)
+    return script
+
+def make_epub_and_one_script_and_one_video(epub_file):
+    json_data = process_epub(epub_file)
+    with open('../data/book.json', 'w') as f:
+        json.dump(json_data, f)
+    
+    script = get_script_from_json('../data/book.json')
+    pipeline(script, "../data/output.mp4")
