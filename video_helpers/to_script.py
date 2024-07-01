@@ -1,9 +1,11 @@
 import os
+import argparse
 from openai import OpenAI
 from dotenv import load_dotenv, find_dotenv
 import json
 import re
 from pipeline import pipeline
+
 # Locate the .env file
 dotenv_path = find_dotenv()
 load_dotenv(dotenv_path)
@@ -40,34 +42,36 @@ import anthropic
 client = anthropic.Anthropic()
 
 
-def get_script_from_chunk(chunk):   
+def get_script_from_chunk(chunk):
     message = client.messages.create(
-      model="claude-3-5-sonnet-20240620",
-      max_tokens=1000,
-      temperature=0,
-      system=prompt,
-      messages=[
-          {
-              "role": "user",
-              "content": [
-                  {
-                      "type": "text",
-                      "text": "Summarize this chapter and just output the script, nothing else [[chapter]] " + chunk
-                  }
-              ]
-          }
-      ]
-  )
+        model="claude-3-5-sonnet-20240620",
+        max_tokens=1000,
+        temperature=0,
+        system=prompt,
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "Summarize this chapter and just output the script, nothing else [[chapter]] " + chunk
+                    }
+                ]
+            }
+        ]
+    )
     return message.content[0].text
+
 
 def get_all_scripts_from_json(json_file):
     with open(json_file) as f:
         data = json.load(f)
-    
+
     for i, item in enumerate(data):
         chunk = item['content']
         script = get_script_from_chunk(chunk)
         data[i]['script'] = script
+
 
 # Given the json file, and chunk number, create the video for it
 def make_video(json_file, i):
@@ -76,13 +80,15 @@ def make_video(json_file, i):
 
     script = data[i]['script']
     pipeline(script, "../data/output.mp4")
-    
+
+
 def make_epub_and_scripts(epub_file):
     json_data = process_epub(epub_file)
     with open('../data/book.json', 'w') as f:
         json.dump(json_data, f)
-    
+
     get_all_scripts_from_json('../data/book.json')
+
 
 make_video("../data/Summarize Text Data.json", 5)
 
@@ -95,10 +101,22 @@ def get_script_from_json(json_file, i):
     script = get_script_from_chunk(chunk)
     return script
 
-def make_epub_and_one_script_and_one_video(epub_file):
+
+def make_epub_and_one_script_and_one_video(epub_file, mp4_output_file):
     json_data = process_epub(epub_file)
     with open('../data/book.json', 'w') as f:
         json.dump(json_data, f)
-    
+
     script = get_script_from_json('../data/book.json')
-    pipeline(script, "../data/output.mp4")
+    pipeline(script, mp4_output_file)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Process an EPUB file and create video scripts.')
+    parser.add_argument('epub_file', type=str, help='Path to the EPUB input file')
+    parser.add_argument('mp4_file', type=str, help='Path to the mp4 output file')
+
+    args = parser.parse_args()
+
+    make_epub_and_one_script_and_one_video(args.epub_file, args.mp4_file)
+
