@@ -187,7 +187,7 @@ def main():
 
     bash('python3 -u ../.devops/ensure-npm-install')
 
-    bash('cd .. && pip3 install --break-system-packages -r requirements.txt')
+    bash('cd .. && ln -s /usr/bin/python3 /usr/bin/python && pip3 install --break-system-packages -r requirements.txt')
 
     # launch code-server
     # bash('''
