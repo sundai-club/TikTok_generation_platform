@@ -28,7 +28,7 @@ def pipeline(script, output_path):
         print(f"Audio File Saved: {audio_path}")
         print(f"transcription_data: {transcription_data}")
         # combine video and audio
-        output_video_path = "../data/output_"+str(i)+".mp4"
+        output_video_path = "data/output_"+str(i)+".mp4"
         combine_video_audio(item['video_path'], audio_path, transcription_data.words, output_video_path)
         output_video_paths.append(output_video_path)
     
