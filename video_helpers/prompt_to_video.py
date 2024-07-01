@@ -1,5 +1,6 @@
 import replicate
 import requests
+import os
 
 TEST_SCRIPT= [
   {
@@ -31,7 +32,14 @@ def prompt_to_video(model=MODEL_INFINITE_ZOOM,
         print(output)
         snippet["url"] = output.get("mp4")
         response = requests.get(snippet["url"])
-        snippet["video_path"] = '../data/video_'+str(i)+'.mp4'
+
+        if not os.path.exists("data"): 
+              
+            # if the demo_folder directory is not present  
+            # then create it. 
+            os.makedirs("data") 
+
+        snippet["video_path"] = 'data/video_'+str(i)+'.mp4'
         with open(snippet["video_path"], 'wb') as file:
           # Write the content of the response to the file
           file.write(response.content)
