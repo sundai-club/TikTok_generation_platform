@@ -1,0 +1,26 @@
+version: "3.8"
+
+volumes:
+  node_modules: null
+  root_home: null
+  redis: null
+  postgres: null
+  nginx_cache: null
+
+services:
+  app:
+    command: python3 -u /opt/app/devops/docker-run start
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: "no"
+    volumes:
+      - ..:/opt/app
+      - ~/.ssh:/root/.ssh
+      - root_home:/root
+      - node_modules:/opt/app/web/node_modules
+      - postgres:/var/lib/postgresql
+      - redis:/var/lib/redis
+      - nginx_cache:/opt/nginx-cache
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
