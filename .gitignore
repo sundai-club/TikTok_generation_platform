@@ -168,3 +168,5 @@ cython_debug/
 video_helpers/src/
 
 .DS_Store
+
+*.mp4
