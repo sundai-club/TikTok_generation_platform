@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   try {
     const job = await db.job.findUnique({
       where: { id: parseInt(jobId, 10) },
-      select: { status: true },
+      select: { status: true, updatedAt: true },
     });
 
     if (!job) {
@@ -20,6 +20,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       status: job.status,
+      updatedAt: job.updatedAt.toISOString(),
+      processingStartedAt: job.status === "Processing" ? job.updatedAt.toISOString() : null,
       videoUrl: job.status === "Completed" ? `/video/${jobId}` : null,
     });
   } catch (error) {

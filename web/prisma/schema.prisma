@@ -19,4 +19,5 @@ model Job {
   epubTmpPath String
   mp4Data     String?
   mp4TmpPath  String?
+  processingStartedAt DateTime?
 }

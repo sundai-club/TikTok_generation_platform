@@ -1,25 +1,27 @@
 import React, { useState, useEffect } from 'react';
 
-const ProgressIndicator: React.FC = () => {
-  const [timeLeft, setTimeLeft] = useState(420); // 7 minutes in seconds
+interface ProgressIndicatorProps {
+  startTime: Date;
+}
+
+const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({ startTime }) => {
+  const [timeElapsed, setTimeElapsed] = useState(0);
+  const totalEstimatedTime = 420; // 7 minutes in seconds
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setTimeLeft((prevTime) => {
-        if (prevTime <= 0) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prevTime - 1;
-      });
+      const now = new Date();
+      const elapsed = Math.floor((now.getTime() - startTime.getTime()) / 1000);
+      setTimeElapsed(elapsed);
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [startTime]);
 
+  const timeLeft = Math.max(0, totalEstimatedTime - timeElapsed);
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
-  const progress = ((420 - timeLeft) / 420) * 100;
+  const progress = Math.min(100, (timeElapsed / totalEstimatedTime) * 100);
 
   return (
     <div className="mt-4">

@@ -5,37 +5,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 "use client";
 
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import ProgressIndicator from './_components/ProgressIndicator';
 
-function VideoPlayer({ videoUrl }: { videoUrl: string }) {
-  return (
-    <div className="mt-8 relative">
-      <h2 className="text-2xl font-semibold mb-4">Generated Video</h2>
-      <div className="absolute top-0 right-0">
-        <a
-          href={videoUrl}
-          download="generated_video.mp4"
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Download
-        </a>
-      </div>
-      <video controls width="640" height="360">
-        <source src={videoUrl} type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-    </div>
-  );
-}
 
 function FileUploader() {
   const [files, setFiles] = useState<File[]>([]);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
-  const [jobId, setJobId] = useState<string | null>(null);
-  const [jobStatus, setJobStatus] = useState<string | null>(null);
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
   const uploadFile = async (file: File) => {
     const formData = new FormData();
@@ -54,37 +30,14 @@ function FileUploader() {
       const data = await response.json();
       console.log(`File uploaded successfully. Job ID: ${data.jobId}`);
       setUploadStatus(`File uploaded successfully. Job ID: ${data.jobId}`);
-      setJobId(data.jobId.toString());
+      
+      // Redirect to the job page
+      window.location.href = `/v/${data.jobId}`;
     } catch (error) {
       console.error(`Error uploading file:`, error);
       setUploadStatus(`Error uploading file: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
-
-  const getJobStatus = useCallback(async () => {
-    if (!jobId) return;
-
-    try {
-      const response = await fetch(`/api/job-status?jobId=${jobId}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch job status');
-      }
-      const data = await response.json();
-      setJobStatus(data.status);
-      if (data.videoUrl) {
-        setVideoUrl(data.videoUrl);
-      }
-    } catch (error) {
-      console.error('Error fetching job status:', error);
-    }
-  }, [jobId]);
-
-  useEffect(() => {
-    if (jobId) {
-      const interval = setInterval(getJobStatus, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [jobId, getJobStatus]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFiles(acceptedFiles);
@@ -96,7 +49,7 @@ function FileUploader() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   const showUploadZone = files.length === 0;
-  const showUploadedInfo = files.length > 0 && !videoUrl;
+  const showUploadedInfo = files.length > 0;
 
   return (
     <div>
@@ -115,21 +68,14 @@ function FileUploader() {
           <div className="mt-4">
             <h4 className="text-lg font-semibold">Uploaded files:</h4>
             <ul className="list-disc list-inside">
-              {files.map(file => (
+              {files.map((file: File) => (
                 <li key={file.name}>{file.name} - {file.size} bytes</li>
               ))}
             </ul>
           </div>
           {uploadStatus && <p className="mt-4" role="status">{uploadStatus}</p>}
-          {jobStatus && (
-            <>
-              <p className="mt-4">Job Status: {jobStatus}</p>
-              {jobStatus === 'Processing' && <ProgressIndicator />}
-            </>
-          )}
         </>
       )}
-      {videoUrl && <VideoPlayer videoUrl={videoUrl} />}
     </div>
   );
 }
