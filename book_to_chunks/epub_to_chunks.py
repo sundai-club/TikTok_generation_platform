@@ -8,6 +8,7 @@ import shutil
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 from markdownify import markdownify as md
+import json
 
 app = FastAPI()
 
@@ -77,45 +78,55 @@ def chunk_epub(epub_path):
     return sections
 
 
-@app.get("/process_epub/")
-async def process_epub(file_name: str):
-    ROOT_ = Path(__file__).parent
-    DATA_ = ROOT_ / "data"
-    epub_file_path = DATA_ / file_name
-    epub_path = Path(epub_file_path)
+# @app.get("/process_epub/")
+def process_epub(file_name: str):
+    # ROOT_ = Path(os.path.expanduser(file_name)).parent
+    # DATA_ = ROOT_ / "data"
+    # epub_file_path = DATA_ / file_name
+    epub_path = Path(os.path.expanduser(file_name))
+    print ("epub_path: ", epub_path)
 
-    if not epub_path.exists() or not epub_path.is_file():
-        raise HTTPException(status_code=404, detail="File not found")
+    if not epub_path.exists() or not epub_path.is_file() or not epub_path.suffix == '.epub':
+        raise HTTPException(status_code=404, detail="File not found or not a valid EPUB file")
 
     try:
         sections = chunk_epub(epub_path)
-        return JSONResponse(
-            content=[{"section_title": section.title, "content": section.content} for section in sections])
+        # Create the 'data' directory if it does not exist
+        os.makedirs('data', exist_ok=True)
+        response_content = [{"section_title": section.title, "content": section.content} for section in sections]
+        json_file_path = 'data/' + epub_path.stem + '.json'
+        with open(json_file_path, 'w') as f:
+            json.dump(response_content, f)
+        print("Full path of the JSON file:", os.path.abspath(json_file_path))
+
+        # return JSONResponse(content=response_content)
+        return json_file_path
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
 
+# @app.post("/upload_and_chunk_epub")
+# def process_epub(file: UploadFile = File(...)):
+#     try:
+#         UPLOAD_DIR = Path(__file__).parent / "uploaded_files"
+#         UPLOAD_DIR.mkdir(exist_ok=True)
 
-@app.post("/upload_and_chunk_epub")
-async def process_epub(file: UploadFile = File(...)):
-    try:
-        UPLOAD_DIR = Path(__file__).parent / "uploaded_files"
-        UPLOAD_DIR.mkdir(exist_ok=True)
+#         # Define the path to save the uploaded file
+#         file_path = UPLOAD_DIR / file.filename
 
-        # Define the path to save the uploaded file
-        file_path = UPLOAD_DIR / file.filename
+#         # Save the uploaded file
+#         with file_path.open("wb") as buffer:
+#             shutil.copyfileobj(file.file, buffer)
+#         sections = chunk_epub(file_path)
 
-        # Save the uploaded file
-        with file_path.open("wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-        sections = chunk_epub(file_path)
-
-        return JSONResponse(
-            content=[{"section_title": section.title, "content": section.content} for section in sections])
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+#         return JSONResponse(
+#             content=[{"section_title": section.title, "content": section.content} for section in sections])
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == '__main__':
-    import uvicorn
+    # import uvicorn
 
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    # uvicorn.run(app, host="127.0.0.1", port=8000)
+    process_epub("/Users/anjalee/Desktop/git/book-digest/book_to_chunks/data/4hr.epub")
