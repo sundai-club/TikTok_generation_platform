@@ -11,13 +11,14 @@ datasource db {
 }
 
 model Job {
-  id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  status      String
-  epubData    String
-  epubTmpPath String
-  mp4Data     String?
-  mp4TmpPath  String?
+  id                  Int       @id @default(autoincrement())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  status              String
+  epubData            String
+  epubTmpPath         String
+  mp4Data             String?
+  mp4TmpPath          String?
   processingStartedAt DateTime?
+  videoStyle          String    @default("")
 }
