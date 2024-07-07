@@ -10,7 +10,7 @@ import { useDropzone } from "react-dropzone";
 import { getVideoStyleNames } from "@/lib/video-style-names";
 
 function FileUploader() {
-  const [files, setFiles] = useState<File[]>([]);
+  const [textContent, setTextContent] = useState<string>("");
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
   const [videoStyles, setVideoStyles] = useState<string[]>([]);
   const [selectedStyle, setSelectedStyle] = useState<string>("");
@@ -26,9 +26,19 @@ function FileUploader() {
     setSelectedStyle(firstStyle); // Set the first style as default
   }, []);
 
-  const uploadFile = async (file: File) => {
+  const uploadFile = useCallback(async (fileToUpload: File | null, content: string | null) => {
+    if (!fileToUpload && !content) {
+      console.error("No file or text content provided");
+      return;
+    }
+
     const formData = new FormData();
-    formData.append("file", file);
+    if (fileToUpload) {
+      formData.append("file", fileToUpload);
+    } else if (content) {
+      const blob = new Blob([content], { type: 'text/plain' });
+      formData.append("file", blob, "content.txt");
+    }
     formData.append("style", selectedStyle);
 
     try {
@@ -53,22 +63,28 @@ function FileUploader() {
         `Error uploading file: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
     }
-  };
+  }, [selectedStyle]);
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
-      setFiles(acceptedFiles);
-      acceptedFiles.forEach((file) => {
-        void uploadFile(file);
-      });
+      if (acceptedFiles.length === 0) {
+        throw new Error("No file selected");
+      }
+      const droppedFile = acceptedFiles[0]!;
+      void uploadFile(droppedFile, null);
     },
-    [selectedStyle],
+    [uploadFile],
   );
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, multiple: false });
 
-  const showUploadZone = files.length === 0;
-  const showUploadedInfo = files.length > 0;
+  const handleTextSubmit = () => {
+    if (textContent.trim()) {
+      void uploadFile(null, textContent);
+    } else {
+      setUploadStatus("Please enter some text content before submitting.");
+    }
+  };
 
   return (
     <div>
@@ -92,37 +108,39 @@ function FileUploader() {
           ))}
         </select>
       </div>
-      {showUploadZone && (
-        <div
-          {...getRootProps()}
-          className="cursor-pointer rounded-xl border-2 border-dashed border-white p-8"
+      <div
+        {...getRootProps()}
+        className="cursor-pointer rounded-xl border-2 border-dashed border-white p-8 mb-4"
+      >
+        <input {...getInputProps()} aria-label="File upload" />
+        {isDragActive ? (
+          <p>Drop the file here ...</p>
+        ) : (
+          <p>Drag and drop a file here, or click to select a file</p>
+        )}
+      </div>
+      <div className="mb-4">
+        <label htmlFor="textContent" className="block text-sm font-medium text-white mb-2">
+          Or paste your text content here:
+        </label>
+        <textarea
+          id="textContent"
+          value={textContent}
+          onChange={(e) => setTextContent(e.target.value)}
+          className="w-full h-32 p-2 text-black rounded-md"
+          placeholder="Paste your text content here..."
+        />
+        <button
+          onClick={handleTextSubmit}
+          className="mt-2 rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"
         >
-          <input {...getInputProps()} aria-label="File upload" />
-          {isDragActive ? (
-            <p>Drop the files here ...</p>
-          ) : (
-            <p>Drag and drop some files here, or click to select files</p>
-          )}
-        </div>
-      )}
-      {showUploadedInfo && (
-        <>
-          <div className="mt-4">
-            <h4 className="text-lg font-semibold">Uploaded files:</h4>
-            <ul className="list-inside list-disc">
-              {files.map((file: File) => (
-                <li key={file.name}>
-                  {file.name} - {file.size} bytes
-                </li>
-              ))}
-            </ul>
-          </div>
-          {uploadStatus && (
-            <p className="mt-4" role="status">
-              {uploadStatus}
-            </p>
-          )}
-        </>
+          Submit Text
+        </button>
+      </div>
+      {uploadStatus && (
+        <p className="mt-4" role="status">
+          {uploadStatus}
+        </p>
       )}
     </div>
   );
