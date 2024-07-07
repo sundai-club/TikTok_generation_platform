@@ -10,11 +10,11 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({ startTime }) => {
     return null;
   }
 
-  const totalEstimatedTime = 407;
+  const totalEstimatedTime = 438;
   const now = new Date();
   const timeElapsed = Math.floor((now.getTime() - startTime.getTime()) / 1000);
   const progress = Math.min(100, (timeElapsed / totalEstimatedTime) * 100);
-  const timeRemaining = Math.max(0, Math.round((totalEstimatedTime - timeElapsed) /* / 60 */ ));
+  const timeRemaining = Math.max(0, totalEstimatedTime - timeElapsed);
 
   return (
     <div className="mt-4">
@@ -24,7 +24,11 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({ startTime }) => {
           style={{ width: `${progress}%` }}
         ></div>
       </div>
-      <p className="mt-2">Estimated time remaining: {timeRemaining} second{timeRemaining !== 1 ? 's' : ''}</p>
+      {timeRemaining < 2 ? (
+        <p className="mt-2">It&apos;s taking longer than usual, but your video will be completed soon.</p>
+      ) : (
+        <p className="mt-2">Estimated time remaining: {timeRemaining} second{timeRemaining !== 1 ? 's' : ''}</p>
+      )}
     </div>
   );
 };

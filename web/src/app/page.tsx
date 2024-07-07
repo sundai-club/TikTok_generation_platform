@@ -91,7 +91,7 @@ function FileUploader() {
       <div className="mb-4">
         <label
           htmlFor="videoStyle"
-          className="block text-sm font-medium text-white"
+          className="block text-lg text-white"
         >
           Select Video Style:
         </label>
@@ -108,7 +108,7 @@ function FileUploader() {
           ))}
         </select>
       </div>
-      <div className="block text-lg font-medium text-white mb-2">Upload a .txt file:</div>
+      <div className="block text-lg text-white mb-2">Upload a .txt file:</div>
       <div
         {...getRootProps()}
         className="cursor-pointer rounded-xl border-2 border-dashed border-white p-8 mb-4"
@@ -121,7 +121,7 @@ function FileUploader() {
         )}
       </div>
       <div className="mb-4">
-        <label htmlFor="textContent" className="block text-lg font-medium text-white mb-2">
+        <label htmlFor="textContent" className="block text-lg text-white mb-2">
           Or paste your text content here:
         </label>
         <textarea
