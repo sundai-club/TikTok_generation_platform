@@ -5,6 +5,8 @@ set -e
 cd `dirname $0`
 cd ..
 
+mkdir -p data
+
 inputFilename="$1"
 outputFilename="$2"
 
