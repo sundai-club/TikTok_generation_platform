@@ -28,31 +28,42 @@ RUN \
   # complete!
   echo "Dockerfile RUN complete!"
 
-# Update package lists
+# BELOW: compile imagemagick 7 from source
+
+# # Update package lists
+# RUN apt-get update && \
+#   # Install dependencies
+#   apt-get install -y build-essential checkinstall && \
+#   apt-get install -y libjpeg-dev libpng-dev libtiff-dev && \
+#   apt-get install -y libfreetype6-dev libx11-dev libxext-dev libxml2-dev && \
+#   apt-get install -y zlib1g-dev && \
+#   # Remove any existing ImageMagick
+#   apt-get remove -y imagemagick imagemagick-6-common && \
+#   # Download and install ImageMagick 7 from source
+#   cd /usr/local/src && \
+#   wget https://download.imagemagick.org/ImageMagick/download/ImageMagick.tar.gz && \
+#   tar -xvf ImageMagick.tar.gz && \
+#   cd ImageMagick-* && \
+#   # Configure and install
+#   ./configure && \
+#   make && \
+#   make install && \
+#   ldconfig /usr/local/lib && \
+#   # Verify installation
+#   magick --version && \
+#   # Clean up
+#   cd / && \
+#   rm -rf /usr/local/src/ImageMagick* /usr/local/src/ImageMagick.tar.gz && \
+#   apt-get clean && \
+#   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Install imagemagick 6 from apt
+
 RUN apt-get update && \
-  # Install dependencies
-  apt-get install -y build-essential checkinstall && \
-  apt-get install -y libjpeg-dev libpng-dev libtiff-dev && \
-  apt-get install -y libfreetype6-dev libx11-dev libxext-dev libxml2-dev && \
-  apt-get install -y zlib1g-dev && \
-  # Remove any existing ImageMagick
-  apt-get remove -y imagemagick imagemagick-6-common && \
-  # Download and install ImageMagick 7 from source
-  cd /usr/local/src && \
-  wget https://download.imagemagick.org/ImageMagick/download/ImageMagick.tar.gz && \
-  tar -xvf ImageMagick.tar.gz && \
-  cd ImageMagick-* && \
-  # Configure and install
-  ./configure && \
-  make && \
-  make install && \
-  ldconfig /usr/local/lib && \
-  # Verify installation
-  magick --version && \
-  # Clean up
-  cd / && \
-  rm -rf /usr/local/src/ImageMagick* /usr/local/src/ImageMagick.tar.gz && \
+  apt-get install -y imagemagick && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+COPY imagemagick-policy-file.xml /etc/ImageMagick-6/policy.xml
 
 WORKDIR /opt/app
