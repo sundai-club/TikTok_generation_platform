@@ -108,6 +108,7 @@ function FileUploader() {
           ))}
         </select>
       </div>
+      <div className="block text-lg font-medium text-white mb-2">Upload a .txt file:</div>
       <div
         {...getRootProps()}
         className="cursor-pointer rounded-xl border-2 border-dashed border-white p-8 mb-4"
@@ -120,7 +121,7 @@ function FileUploader() {
         )}
       </div>
       <div className="mb-4">
-        <label htmlFor="textContent" className="block text-sm font-medium text-white mb-2">
+        <label htmlFor="textContent" className="block text-lg font-medium text-white mb-2">
           Or paste your text content here:
         </label>
         <textarea
@@ -151,7 +152,7 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
       <div className="rounded-xl bg-white/10 p-8">
         <h1 className="mb-8 text-5xl font-bold">
-          Generate a video from a script (a .txt file)
+          Generate a video from a script
         </h1>
         <FileUploader />
       </div>
