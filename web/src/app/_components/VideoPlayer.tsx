@@ -1,6 +1,6 @@
 export default function VideoPlayer({ videoUrl }: { videoUrl: string }) {
   return (
-    <div className="mt-8 relative">
+    <div className="relative">
       <h2 className="text-2xl font-semibold mb-4">Generated Video</h2>
       <div className="absolute top-0 right-0">
         <a
