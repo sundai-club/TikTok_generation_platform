@@ -1,3 +1,4 @@
+from .prompt_to_stock_video import prompt_to_stock_video
 from .prompt_to_video import prompt_to_video
 from .script_to_prompt import gpt_step_0, gpt_step_1
 import json
@@ -18,7 +19,7 @@ def pipeline(script, output_path):
     print('parsed_script 1: ', parsed_script)
     parsed_script = gpt_step_1(parsed_script)
     print('parsed_script 2: ', parsed_script)
-    prompt = prompt_to_video(parsed_script = parsed_script)
+    prompt = prompt_to_stock_video(parsed_script = parsed_script)
     
     i = 0
     output_video_paths = []
