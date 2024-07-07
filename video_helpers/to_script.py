@@ -125,7 +125,7 @@ if __name__ == '__main__':
 
     script = get_script_from_chunk(open(args.epub_file).read())
 
-    pipeline(script, args.mp4_file)
+    pipeline(script, args.mp4_file, args.video_style)
 
     #make_epub_and_one_script_and_one_video(args.epub_file, args.mp4_file)
 
