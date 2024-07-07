@@ -7,9 +7,10 @@ cd ..
 
 inputFilename="$1"
 outputFilename="$2"
+videoStyle="$3"
 
-if [ -z "$inputFilename" -o -z "$outputFilename" ]; then
-  echo "Usage: $0 input.epub output.mp4"
+if [ -z "$inputFilename" -o -z "$outputFilename" -o -z "$videoStyle" ]; then
+  echo "Usage: $0 input.epub output.mp4 videoStyle"
   exit 1
 fi
 
@@ -27,9 +28,8 @@ fi
 
 # cd video_helpers
 
-python -m video_helpers.to_script "$inputFilename" "$outputFilename"
+python -m video_helpers.to_script "$inputFilename" "$outputFilename" "$videoStyle"
 
 if [ ! -f "$outputFilename" ]; then
   mv /opt/app/data/output.mp4 "$outputFilename"
 fi
-
