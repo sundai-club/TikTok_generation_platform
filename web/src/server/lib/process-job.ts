@@ -18,17 +18,6 @@ export async function processJob(jobId: number) {
   });
   console.log(`Job status updated to Processing`);
 
-  const findGitRoot = (dir: string): string => {
-    if (fs.existsSync(path.join(dir, ".git"))) {
-      return dir;
-    }
-    const parentDir = path.resolve(dir, "..");
-    if (parentDir === dir) {
-      throw new Error("Could not find .git directory");
-    }
-    return findGitRoot(parentDir);
-  };
-
 try {
   const epubToMp4ScriptPath = "/opt/app/bin/epub-to-mp4";
   console.log(`epubToMp4ScriptPath: ${epubToMp4ScriptPath}`);
