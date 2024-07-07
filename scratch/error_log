@@ -1,0 +1,61 @@
+7|background   | 2024-07-07T15:35:25: Audio File Saved: data/Generate_speech_1.mp3
+7|background   | 2024-07-07T15:35:25: 
+7|background   | 2024-07-07T15:35:25: stderr: Traceback (most recent call last):
+7|background   | 2024-07-07T15:35:25:   File "/usr/local/lib/python3.11/dist-packages/moviepy/video/VideoClip.py", line 1137, in __init__
+7|background   | 2024-07-07T15:35:25: 
+7|background   | 2024-07-07T15:35:25: stderr:     subprocess_call(cmd, logger=None)
+7|background   | 2024-07-07T15:35:25:   File "/usr/local/lib/python3.11/dist-packages/moviepy/tools.py", line 54, in subprocess_call
+7|background   | 2024-07-07T15:35:25:     raise IOError(err.decode('utf8'))
+7|background   | 2024-07-07T15:35:25: OSError: WARNING: The convert command is deprecated in IMv7, use "magick" instead of "convert" or "magick convert"
+7|background   | 2024-07-07T15:35:25: 
+7|background   | 2024-07-07T15:35:25: convert: unable to read font `DejaVuSans' @ warning/annotate.c/RenderType/1024.
+7|background   | 2024-07-07T15:35:25: convert: unable to read font `DejaVuSans' @ error/annotate.c/RenderFreetype/1654.
+7|background   | 2024-07-07T15:35:25: convert: unable to read font `DejaVuSans' @ warning/annotate.c/RenderType/1024.
+7|background   | 2024-07-07T15:35:25: convert: unable to read font `DejaVuSans' @ error/annotate.c/RenderFreetype/1654.
+7|background   | 2024-07-07T15:35:25: convert: no images defined `PNG32:/tmp/tmp01jqfvdb.png' @ error/deprecate.c/ConvertImageCommand/3368.
+7|background   | 2024-07-07T15:35:25: 
+7|background   | 2024-07-07T15:35:25: 
+7|background   | 2024-07-07T15:35:25: During handling of the above exception, another exception occurred:
+7|background   | 2024-07-07T15:35:25: 
+7|background   | 2024-07-07T15:35:25: Traceback (most recent call last):
+7|background   | 2024-07-07T15:35:25:   File "<frozen runpy>", line 198, in _run_module_as_main
+7|background   | 2024-07-07T15:35:25:   File "<frozen runpy>", line 88, in _run_code
+7|background   | 2024-07-07T15:35:25:   File "/opt/app/video_helpers/to_script.py", line 126, in <module>
+7|background   | 2024-07-07T15:35:25: 
+7|background   | 2024-07-07T15:35:25: stderr:     pipeline(script, args.mp4_file)
+7|background   | 2024-07-07T15:35:25: 
+7|background   | 2024-07-07T15:35:25: stderr:   File "/opt/app/video_helpers/pipeline.py", line 33, in pipeline
+7|background   | 2024-07-07T15:35:25: 
+7|background   | 2024-07-07T15:35:25: stderr:     combine_video_audio(item['video_path'], audio_path, transcription_data.words, output_video_path)
+7|background   | 2024-07-07T15:35:25: 
+7|background   | 2024-07-07T15:35:25: stderr:   File "/opt/app/video_helpers/audio_video.py", line 42, in combine_video_audio
+7|background   | 2024-07-07T15:35:25: 
+7|background   | 2024-07-07T15:35:25: stderr:     cropped_video = subtitles_main(words, cropped_video)
+7|background   | 2024-07-07T15:35:25: 
+7|background   | 2024-07-07T15:35:25: stderr:                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|background   | 2024-07-07T15:35:25:   File "/opt/app/video_helpers/overlay_text_on_video.py", line 38, in subtitles_main
+7|background   | 2024-07-07T15:35:25: 
+7|background   | 2024-07-07T15:35:25: stderr:     text_clips.append(create_text_clip(words_chunk, start_time, end_time))
+7|background   | 2024-07-07T15:35:25: 
+7|background   | 2024-07-07T15:35:25: stderr:                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+7|background   | 2024-07-07T15:35:25:   File "/opt/app/video_helpers/overlay_text_on_video.py", line 14, in create_text_clip
+7|background   | 2024-07-07T15:35:25: 
+7|background   | 2024-07-07T15:35:25: stderr:     txt_clip = TextClip(
+7|background   | 2024-07-07T15:35:25:                ^^^^^^^^^
+7|background   | 2024-07-07T15:35:25:   File "/usr/local/lib/python3.11/dist-packages/moviepy/video/VideoClip.py", line 1146, in __init__
+7|background   | 2024-07-07T15:35:25: 
+7|background   | 2024-07-07T15:35:25: stderr:     raise IOError(error)
+7|background   | 2024-07-07T15:35:25: OSError: MoviePy Error: creation of None failed because of the following error:
+7|background   | 2024-07-07T15:35:25: 
+7|background   | 2024-07-07T15:35:25: WARNING: The convert command is deprecated in IMv7, use "magick" instead of "convert" or "magick convert"
+7|background   | 2024-07-07T15:35:25: 
+7|background   | 2024-07-07T15:35:25: convert: unable to read font `DejaVuSans' @ warning/annotate.c/RenderType/1024.
+7|background   | 2024-07-07T15:35:25: convert: unable to read font `DejaVuSans' @ error/annotate.c/RenderFreetype/1654.
+7|background   | 2024-07-07T15:35:25: convert: unable to read font `DejaVuSans' @ warning/annotate.c/RenderType/1024.
+7|background   | 2024-07-07T15:35:25: convert: unable to read font `DejaVuSans' @ error/annotate.c/RenderFreetype/1654.
+7|background   | 2024-07-07T15:35:25: convert: no images defined `PNG32:/tmp/tmp01jqfvdb.png' @ error/deprecate.c/ConvertImageCommand/3368.
+7|background   | 2024-07-07T15:35:25: .
+7|background   | 2024-07-07T15:35:25: 
+7|background   | 2024-07-07T15:35:25: .This error can be due to the fact that ImageMagick is not installed on your computer, or (for Windows users) that you didn't specify the path to the ImageMagick binary in file conf.py, or that the path you specified is incorrect
+7|background   | 2024-07-07T15:35:25: 
+7|background   | 2024-07-07T15:35:25: stdout: transcription_data: Transcription(text='Imagine a world where happiness is engineered, art is sacrificed, and science is muzzled.', task='transcribe', language='english', duration=5.420000076293945, words=[{'word': 'Imagine', 'start': 0.0, 'end': 0.4000000059604645}, {'word': 'a', 'start': 0.4000000059604645, 'end': 0.6200000047683716}, {'word': 'world', 'start': 0.6200000047683716, 'end': 0.8600000143051147}, {'word': 'where', 'start': 0.8600000143051147, 'end': 1.1200000047683716}, {'word': 'happiness', 'start': 1.1200000047683716, 'end': 1.5800000429153442}, {'word': 'is', 'start': 1.5800000429153442, 'end': 1.8799999952316284}, {'word': 'engineered', 'start': 1.8799999952316284, 'end': 2.2799999713897705}, {'word': 'art', 'start': 2.9000000953674316, 'end': 2.940000057220459}, {'word': 'is', 'start': 2.940000057220459, 'end': 3.759999990463257}, {'word': 'sacrificed', 'start': 3.759999990463257, 'end': 3.759999990463257}, {'word': 'and', 'start': 3.9600000381469727, 'end': 4.199999809265137}, {'word': 'science', 'start': 4.199999809265137, 'end': 4.460000038146973}, {'word': 'is', 'start': 4.460000038146973, 'end': 4.960000038146973}, {'word': 'muzzled', 'start': 4.960000038146973, 'end': 5.099999904632568}])
