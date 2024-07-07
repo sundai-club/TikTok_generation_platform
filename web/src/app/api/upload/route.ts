@@ -7,9 +7,14 @@ import crypto from "crypto";
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
   const file = formData.get('file') as File | null;
+  const style = formData.get('style') as string | null;
 
   if (!file) {
     return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+  }
+
+  if (!style) {
+    return NextResponse.json({ error: 'No style selected' }, { status: 400 });
   }
 
   try {
@@ -24,6 +29,7 @@ export async function POST(request: NextRequest) {
         epubData: buffer.toString('base64'),
         epubTmpPath: filePath,
         status: "New",
+        videoStyle: style,
       },
     });
 
@@ -33,6 +39,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error creating job:', error);
-    return NextResponse.json({ error: 'Error creating job' }, { status: 500 });
+    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+    return NextResponse.json({ error: 'Error creating job: ' + error }, { status: 500 });
   }
 }
