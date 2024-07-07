@@ -170,3 +170,5 @@ video_helpers/src/
 .DS_Store
 
 *.mp4
+
+core

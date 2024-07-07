@@ -27,7 +27,7 @@ const JobStatusDisplay: React.FC<JobStatusDisplayProps> = ({ jobStatus, processi
       {jobStatus === 'Completed' && (
         <>
           <p className="mt-4 text-green-500">Video generation completed successfully!</p>
-          <VideoPlayer videoUrl={`/api/video/${jobId}`} />
+          <VideoPlayer videoUrl={`/video/${jobId}`} />
         </>
       )}
       {jobStatus === 'Failed' && (

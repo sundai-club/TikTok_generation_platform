@@ -8,10 +8,8 @@ export default function JobPage({ params }: { params: { jobId: string } }) {
   const [jobStatus, setJobStatus] = useState<string | null>(null);
   const [processingStartTime, setProcessingStartTime] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const getJobStatus = useCallback(async () => {
-    setIsLoading(true);
     try {
       const response = await fetch(`/api/job-status?jobId=${params.jobId}`);
       if (!response.ok) {
@@ -31,7 +29,6 @@ export default function JobPage({ params }: { params: { jobId: string } }) {
       console.error('Error fetching job status:', error);
       setError('Failed to fetch job status. Please try again later.');
     } finally {
-      setIsLoading(false);
     }
   }, [params.jobId]);
 
@@ -47,9 +44,7 @@ export default function JobPage({ params }: { params: { jobId: string } }) {
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
       <div className="rounded-xl bg-white/10 p-8">
         <h1 className="text-5xl font-bold mb-8">Video Generation Progress</h1>
-        {isLoading ? (
-          <p>Loading job status...</p>
-        ) : error ? (
+        {error ? (
           <p className="text-red-500">{error}</p>
         ) : (
           <JobStatusDisplay
