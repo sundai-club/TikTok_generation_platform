@@ -1,5 +1,6 @@
 import os
 import argparse
+from book_to_chunks.epub_to_chunks import process_epub
 from openai import OpenAI
 from dotenv import load_dotenv, find_dotenv
 import json
@@ -71,6 +72,7 @@ def get_all_scripts_from_json(json_file):
         chunk = item['content']
         script = get_script_from_chunk(chunk)
         data[i]['script'] = script
+        print(script)
 
 
 # Given the json file, and chunk number, create the video for it
@@ -79,18 +81,19 @@ def make_video(json_file, i):
         data = json.load(f)
 
     script = data[i]['script']
-    pipeline(script, "data/output.mp4")
+    pipeline(script, f"data/output_{i}.mp4")
 
 
 def make_epub_and_scripts(epub_file):
-    # json_data = process_epub(epub_file)
+    json_file_name = process_epub(epub_file)
     # with open('../data/book.json', 'w') as f:
     #     json.dump(json_data, f)
 
-    with open(epub_file) as f:
-        text = f.read()
+    # with open(epub_file) as f:
+    #     text = f.read()
 
-    #get_all_scripts_from_json('../data/book.json')
+    get_all_scripts_from_json(json_file_name)
+    return json_file_name
 
 
 #make_video("../data/Summarize Text Data.json", 5)

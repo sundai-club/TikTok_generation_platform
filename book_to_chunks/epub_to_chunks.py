@@ -5,12 +5,12 @@ from bs4 import BeautifulSoup
 import msgspec
 import os
 import shutil
-from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.responses import JSONResponse
+# from fastapi import FastAPI, File, UploadFile, HTTPException
+# from fastapi.responses import JSONResponse
 from markdownify import markdownify as md
 import json
 
-app = FastAPI()
+# app = FastAPI()
 
 class Section(msgspec.Struct):
     tag_name: str
@@ -87,8 +87,8 @@ def process_epub(file_name: str):
     print ("epub_path: ", epub_path)
 
     if not epub_path.exists() or not epub_path.is_file() or not epub_path.suffix == '.epub':
-        raise HTTPException(status_code=404, detail="File not found or not a valid EPUB file")
-
+        raise FileNotFoundError("File not found or not a valid EPUB file")
+    
     try:
         sections = chunk_epub(epub_path)
         # Create the 'data' directory if it does not exist
@@ -102,7 +102,7 @@ def process_epub(file_name: str):
         # return JSONResponse(content=response_content)
         return json_file_path
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise Exception(str(e))
     
 
 # @app.post("/upload_and_chunk_epub")
@@ -129,4 +129,4 @@ if __name__ == '__main__':
     # import uvicorn
 
     # uvicorn.run(app, host="127.0.0.1", port=8000)
-    process_epub("/Users/anjalee/Desktop/git/book-digest/book_to_chunks/data/4hr.epub")
+    process_epub("data/BeingYou.epub")
