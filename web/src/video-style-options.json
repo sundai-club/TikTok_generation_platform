@@ -1,11 +1,11 @@
 [
   {
-    "name": "Infinite Zoom",
+    "name": "Internet Videos",
     "model": "CHANGE THIS AS NEEDED FOR THE PIPELINE, FEEL FREE TO ADD MORE PARAMETERS",
     "modelInput": "CHANGE THIS AS NEEDED FOR THE PIPELINE, FEEL FREE TO ADD MORE PARAMETERS"
   },
   {
-    "name": "Anime",
+    "name": "Infinite Zoom",
     "model": "CHANGE THIS AS NEEDED FOR THE PIPELINE, FEEL FREE TO ADD MORE PARAMETERS",
     "modelInput": "CHANGE THIS AS NEEDED FOR THE PIPELINE, FEEL FREE TO ADD MORE PARAMETERS"
   }

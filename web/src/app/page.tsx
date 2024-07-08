@@ -88,26 +88,28 @@ function FileUploader() {
 
   return (
     <div>
-      <div className="mb-4">
-        <label
-          htmlFor="videoStyle"
-          className="block text-lg text-white"
-        >
-          Select Video Style:
-        </label>
-        <select
-          id="videoStyle"
-          value={selectedStyle}
-          onChange={(e) => setSelectedStyle(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base text-black focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-        >
-          {videoStyles.map((style) => (
-            <option key={style} value={style}>
-              {style}
-            </option>
-          ))}
-        </select>
-      </div>
+      {videoStyles.length > 1 && (
+        <div className="mb-4">
+          <label
+            htmlFor="videoStyle"
+            className="block text-lg text-white"
+          >
+            Select Video Style:
+          </label>
+          <select
+            id="videoStyle"
+            value={selectedStyle}
+            onChange={(e) => setSelectedStyle(e.target.value)}
+            className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base text-black focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+          >
+            {videoStyles.map((style) => (
+              <option key={style} value={style}>
+                {style}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
       <div className="block text-lg text-white mb-2">Upload a .txt file:</div>
       <div
         {...getRootProps()}

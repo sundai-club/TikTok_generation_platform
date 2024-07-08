@@ -13,7 +13,6 @@ const JobStatusDisplay: React.FC<JobStatusDisplayProps> = ({ jobStatus, processi
 
   return (
     <>
-      <p className="mt-4">Job Status: {jobStatus}</p>
       {jobStatus === 'New' && (
         <p className="mt-2">Your job is queued and will start processing soon.</p>
       )}
@@ -26,7 +25,6 @@ const JobStatusDisplay: React.FC<JobStatusDisplayProps> = ({ jobStatus, processi
       )}
       {jobStatus === 'Completed' && (
         <>
-          <p className="mt-4 text-green-500">Video generation completed successfully!</p>
           <VideoPlayer videoUrl={`/video/${jobId}`} />
         </>
       )}

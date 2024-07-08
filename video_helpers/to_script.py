@@ -121,12 +121,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process an EPUB file and create video scripts.')
     parser.add_argument('epub_file', type=str, help='Path to the EPUB input file')
     parser.add_argument('mp4_file', type=str, help='Path to the mp4 output file')
+    parser.add_argument('video_style', type=str, help='Style of the video')
+    # video_style is one of the options from src/web/video-style-options.json
 
     args = parser.parse_args()
 
     script = get_script_from_chunk(open(args.epub_file).read())
 
-    pipeline(script, args.mp4_file)
+    pipeline(script, args.mp4_file, args.video_style)
 
     #make_epub_and_one_script_and_one_video(args.epub_file, args.mp4_file)
 

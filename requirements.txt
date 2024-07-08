@@ -27,4 +27,5 @@ urllib3==2.2.2
 anthropic
 scikit-image
 msgspec==0.18.6
-markdownify==0.12.1
+markdownify==0.12.1markdownify==0.12.1
+litellm

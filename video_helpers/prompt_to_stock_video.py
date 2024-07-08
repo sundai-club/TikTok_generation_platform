@@ -50,15 +50,31 @@ def script2url(script):
   return video_url
 
 
-def prompt_to_video(parsed_script):
+def prompt_to_stock_video(parsed_script):
   print("Getting videos...")
   result = []
-  for snippet in tqdm(parsed_script):
+  
+  for i, snippet in enumerate(tqdm(parsed_script)):
       
       output_url = script2url(snippet.get("text"))
 
-      snippet["mp4"] = output_url
+      snippet["url"] = output_url
+
+      response = requests.get(snippet["url"])
+
+      if not os.path.exists("data"): 
+            
+          # if the demo_folder directory is not present  
+          # then create it. 
+          os.makedirs("data") 
+
+      snippet["video_path"] = 'data/video_'+str(i)+'.mp4'
+      with open(snippet["video_path"], 'wb') as file:
+        # Write the content of the response to the file
+        file.write(response.content)
+
       result.append(snippet)
+
   return result
 
 
