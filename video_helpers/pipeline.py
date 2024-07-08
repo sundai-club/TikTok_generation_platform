@@ -23,8 +23,8 @@ def pipeline(script, output_path, style):
 
     if style == 'Internet Videos':
         prompt = prompt_to_stock_video(parsed_script = parsed_script)
-    
-    prompt = prompt_to_video(parsed_script = parsed_script)
+    else:
+        prompt = prompt_to_video(parsed_script = parsed_script)
     
     i = 0
     output_video_paths = []
