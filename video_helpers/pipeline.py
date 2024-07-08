@@ -1,5 +1,5 @@
 from .prompt_to_stock_video import prompt_to_stock_video
-from .prompt_to_video import prompt_to_video
+from .prompt_to_video import prompt_to_video, find_model
 from .script_to_prompt import gpt_step_0, gpt_step_1
 import json
 
@@ -13,35 +13,40 @@ PROMPT = json.loads('''[{"text": "In a world where efficient travel and remote l
 
 def pipeline(script, output_path, style):
     
+    model = find_model(style)
+
+    if model and "prompt" in model:
+
     # create video from script
-    print('script: ',script)
-    parsed_script = gpt_step_0(script)
-    print('parsed_script 1: ', parsed_script)
-    parsed_script = gpt_step_1(parsed_script)
-    print('parsed_script 2: ', parsed_script)
+        print('script: ',script)
+        parsed_script = gpt_step_0(script)
+        print('parsed_script 1: ', parsed_script)
+
+        parsed_script = gpt_step_1(parsed_script, model["prompt"])
+        print('parsed_script 2: ', parsed_script)
 
 
-    if style == 'Internet Videos':
-        prompt = prompt_to_stock_video(parsed_script = parsed_script)
-    else:
-        prompt = prompt_to_video(parsed_script = parsed_script)
-    
-    i = 0
-    output_video_paths = []
-    for item in prompt:
-        i += 1
-        # create audio from script
-        audio_path, transcription_data = generate_speech_and_transcription(item['text'], filename="Generate_speech_"+str(i))
-        print(f"Audio File Saved: {audio_path}")
-        print(f"transcription_data: {transcription_data}")
-        # combine video and audio
-        output_video_path = "data/output_"+str(i)+".mp4"
-        combine_video_audio(item['video_path'], audio_path, transcription_data.words, output_video_path)
-        output_video_paths.append(output_video_path)
-    
-    # combine all videos together
-    # output_video_paths = ['../data/output_1.mp4', '../data/output_2.mp4', '../data/output_3.mp4', '../data/output_4.mp4', '../data/output_5.mp4', '../data/output_6.mp4', '../data/output_7.mp4']
-    print(output_video_paths)
-    combine_videos(output_video_paths, output_path)
-    
+        if style == 'Internet Videos':
+            prompt = prompt_to_stock_video(parsed_script = parsed_script)
+        else:
+            prompt = prompt_to_video(parsed_script = parsed_script)
+        
+        i = 0
+        output_video_paths = []
+        for item in prompt:
+            i += 1
+            # create audio from script
+            audio_path, transcription_data = generate_speech_and_transcription(item['text'], filename="Generate_speech_"+str(i))
+            print(f"Audio File Saved: {audio_path}")
+            print(f"transcription_data: {transcription_data}")
+            # combine video and audio
+            output_video_path = "data/output_"+str(i)+".mp4"
+            combine_video_audio(item['video_path'], audio_path, transcription_data.words, output_video_path)
+            output_video_paths.append(output_video_path)
+        
+        # combine all videos together
+        # output_video_paths = ['../data/output_1.mp4', '../data/output_2.mp4', '../data/output_3.mp4', '../data/output_4.mp4', '../data/output_5.mp4', '../data/output_6.mp4', '../data/output_7.mp4']
+        print(output_video_paths)
+        combine_videos(output_video_paths, output_path)
+        
 # pipeline(SCRIPT, "../data/output.mp4")
