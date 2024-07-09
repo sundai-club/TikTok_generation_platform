@@ -13,10 +13,9 @@ TEST_SCRIPT= [
     "prompt": "Introducing digital mail for nomads"
   }
 ]
-MODEL_INFINITE_ZOOM = "arielreplicate/stable_diffusion_infinite_zoom:a2527c5074fc0cf9fa6015a40d75d080d1ddf7082fabe142f1ccd882c18fce61"
 
 def find_model(style):
-    f = open("../../web/src/video-style-options.json")
+    f = open("./web/src/video-style-options.json")
     style_json = json.load(f)
     print('Video style json file loaded successfully!')
     for model in style_json:

@@ -1,7 +1,7 @@
 [
   {
       "name": "Internet Videos",
-      "modelInput": "Each 'text' section in the following code is a part of a script. Come up a unique scene for each section."
+      "prompt": "Each 'text' section in the following code is a part of a script. Come up a unique scene for each section."
   },
   {
       "name": "Infinite Zoom",

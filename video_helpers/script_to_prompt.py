@@ -69,7 +69,7 @@ def gpt_step_1(code, prompt):
                 "role": "user",
                 "content": [
                     {"type": "text", 
-                     "text": prompt + " Add these to the JSON object with the label 'prompt'. Code: " + code},
+                     "text": prompt + "Add these to the JSON object with the label 'prompt' and keep the original 'text' section. Code: " + code},
                 ],
             }
         ],
