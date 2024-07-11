@@ -1,4 +1,4 @@
-from moviepy.editor import VideoFileClip, AudioFileClip, concatenate_videoclips
+from moviepy.editor import VideoFileClip, AudioFileClip, concatenate_videoclips, ImageClip, CompositeVideoClip
 
 from .overlay_text_on_video import subtitles_main
 
@@ -50,9 +50,22 @@ def combine_videos(video_paths, output_path):
     
     # Concatenate the video clips
     final_clip = concatenate_videoclips(video_clips, method="compose")
+
+    #add water mark
+    watermark = ImageClip("./web/src/sundai_logo.png")
+    watermark = watermark.set_opacity(0.6)
+    watermark = watermark.set_duration(final_clip.duration)
+    watermark = watermark.set_position(("right", "bottom"))
+
+    final_video = CompositeVideoClip([final_clip, watermark])
+
+    print("Watermark duration:", watermark.duration)
+    print("Final video duration:", final_clip.duration)
+    print("Final video size:", final_clip.size)
+
     
     # Write the final output video to the specified path
-    final_clip.write_videofile(output_path, codec="libx264", audio_codec="aac")
+    final_video.write_videofile(output_path, codec="libx264", audio_codec="aac")
 
 # Example usage
 #combine_video_audio("../data/video1.mp4", "../data/audio1.wav", "../data/output.mp4")
