@@ -78,6 +78,6 @@ SCRIPT = [
     }
 ]
 
-# pipeline(SCRIPT, "data/output.mp4", style='Internet Videos')
+pipeline(SCRIPT, "data/output.mp4", style='Internet Videos')
 
 
