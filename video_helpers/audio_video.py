@@ -23,7 +23,7 @@ def crop_and_resize(video,target_width=1080,target_height=1350):
     
     
 
-def combine_video_audio(video_path, audio_path, words, output_path):
+def combine_video_audio(video_path, audio_path, words, output_path, foreground_img=None):
     # Load the video and audio files
     video = VideoFileClip(video_path)
     audio = AudioFileClip(audio_path)
@@ -36,10 +36,17 @@ def combine_video_audio(video_path, audio_path, words, output_path):
     
     # Resize the video to 9:16 aspect ratio and 1080x1920 resolution
     #edited_video = edited_video.resize(newsize=(1080, 1920))
-    cropped_video = crop_and_resize(edited_video,target_width=1080,target_height=1350)
+    cropped_video = crop_and_resize(edited_video, target_width=1080,target_height=1350)
     
     cropped_video = cropped_video.set_audio(audio)
     cropped_video = subtitles_main(words, cropped_video)
+    
+    if foreground_img:
+        foreground_img = ImageClip(foreground_img)
+        foreground_img = foreground_img.set_duration(cropped_video.duration)
+        foreground_img = foreground_img.resize(width=cropped_video.w * 0.8)
+        foreground_img = foreground_img.set_position(("center", 200))
+        cropped_video = CompositeVideoClip([cropped_video, foreground_img])
     
     cropped_video.write_videofile(output_path, codec="libx264", audio_codec="aac")
     

@@ -13,8 +13,8 @@ async function main() {
         },
       });
       if (!job) {
-        console.log("No new jobs found, waiting for 1 second...");
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        // console.log("No new jobs found, waiting for 1 second...");
+        await new Promise((resolve) => setTimeout(resolve, 10000));
         continue;
       }
       console.log(`New job found with ID: ${job.id}, processing...`);

@@ -21,7 +21,7 @@ def create_text_clip(words_chunk, start_time, end_time):
             size=(820, None),
             bg_color="black"
         )
-    txt_clip = txt_clip.set_start(start_time).set_end(end_time).set_position(('center', 200))
+    txt_clip = txt_clip.set_start(start_time).set_end(end_time).set_position(('center', 900))
     return txt_clip
 
 def subtitles_main(words, video):

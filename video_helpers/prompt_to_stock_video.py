@@ -32,7 +32,7 @@ def script2url(script):
   # query keywords
 
   query_keywords_res = completion(
-    model="gpt-3.5-turbo",
+    model="gpt-4o",
     messages=[
       { "content": "Imagine the following script is a part of a video book. What is the perfect background video for the script? It can only be a single shot of some scene" + script, "role": "user"}, 
       scene_res.choices[0].message, 
@@ -45,6 +45,10 @@ def script2url(script):
   # stock video
 
   video_res = requests.get("https://api.pexels.com/videos/search?orientation=portrait&query=" + query_kerywords + "&per_page=1", headers={"Authorization": os.getenv("PEXELS_API_KEY")}).json()
+  
+  print(video_res.keys())
+  print(video_res)
+  
   video_url = video_res["videos"][0]["video_files"][0]["link"]
 
   return video_url
