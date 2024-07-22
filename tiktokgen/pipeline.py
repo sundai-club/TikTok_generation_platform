@@ -8,7 +8,7 @@ from .script_snippet_to_audio import extract_text_list, generate_speech_and_tran
 from .audio_video import combine_video_audio, combine_videos
 
 
-def pipeline(script, output_path, style):
+def pipeline(script, output_path, style, generate_forground=True):
     model = find_model(style)
 
     parsed_script = [{"text": t["text"]} for t in script] 
@@ -31,10 +31,11 @@ def pipeline(script, output_path, style):
         prompt = prompt_to_video(parsed_script = parsed_script, style = style)
         print (f'Replicate videos output: ' + str(prompt))
         
-    # Generate foreground images with Stable Diffusion
-    print(f'\n\nForeground images input: ' + str(prompt))
-    prompt = prompts_to_foreground_images(parsed_script=parsed_script)
-    print(f'\n\nForeground images output: ' + str(prompt))
+    # Generate foreground images with Stable Diff
+    if generate_forground:
+        print(f'\n\nForeground images input: ' + str(prompt))
+        prompt = prompts_to_foreground_images(parsed_script=parsed_script)
+        print(f'\n\nForeground images output: ' + str(prompt))
     
     i = 0
     output_video_paths = []
@@ -82,6 +83,5 @@ SCRIPT = [
     }
 ]
 
-pipeline(SCRIPT, "data/output.mp4", style='Internet Videos')
-
+pipeline(SCRIPT, "data/output.mp4", style='Internet Videos', generate_forground=False)
 
