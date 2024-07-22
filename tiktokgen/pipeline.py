@@ -1,5 +1,6 @@
 from .prompt_to_stock_video import prompt_to_stock_video
 from .prompt_to_video import prompt_to_video, find_model
+from .prompt_to_image import prompts_to_foreground_images
 from .script_to_prompt import gpt_step_0, gpt_step_1
 import json
 
@@ -9,21 +10,19 @@ from .audio_video import combine_video_audio, combine_videos
 
 def pipeline(script, output_path, style):
     model = find_model(style)
-    
-    parsed_script = script #json.dumps(script, indent=4)
 
-    # parsed_script = [{"text": t["text"]} for t in script] 
+    parsed_script = [{"text": t["text"]} for t in script] 
     # Convert parsed_script into a prity print string of the json
-    # parsed_script = json.dumps(parsed_script, indent=4)
-    # print("parsed_script_1", parsed_script)
-    # parsed_script = gpt_step_1(parsed_script, model["prompt"])
-    # print("parsed_script_2", parsed_script)
-    # parsed_script = [{
-    #     "text": script[k]["text"],
-    #     "foreground_img": script[k]["foreground_img"],
-    #     "prompt": parsed_script[k]["prompt"]} 
-    #         for k in range(len(parsed_script))
-    # ]
+    parsed_script = json.dumps(parsed_script, indent=4)
+    print("parsed_script_1", parsed_script)
+    parsed_script = gpt_step_1(parsed_script, model["prompt"])
+    print("parsed_script_2", parsed_script)
+    parsed_script = [{
+        "text": script[k]["text"],
+        "foreground_img": script[k]["foreground_img"],
+        "prompt": parsed_script[k]["prompt"]} 
+            for k in range(len(parsed_script))
+    ]
     
     if style == 'Internet Videos':
         prompt = prompt_to_stock_video(parsed_script = parsed_script)
@@ -31,6 +30,11 @@ def pipeline(script, output_path, style):
     else:
         prompt = prompt_to_video(parsed_script = parsed_script, style = style)
         print (f'Replicate videos output: ' + str(prompt))
+        
+    # Generate foreground images with Stable Diffusion
+    print(f'\n\nForeground images input: ' + str(prompt))
+    prompt = prompts_to_foreground_images(parsed_script=parsed_script)
+    print(f'\n\nForeground images output: ' + str(prompt))
     
     i = 0
     output_video_paths = []
@@ -54,7 +58,7 @@ def pipeline(script, output_path, style):
 SCRIPT = [
     {
         "text": "Imagine controlling a swarm of drones in the sky without them crashing into each other. Sounds impossible? Well, not anymore!",
-        "foreground_img": "data/img_samples/1.png"
+        "foreground_img": None
     },
     {
         "text": "In air traffic control, autonomous vehicles, and robotics, the order in which decisions are made can mean the difference between seamless coordination and catastrophic failure. Optimizing this order is critical for safety and efficiency.",
@@ -74,7 +78,7 @@ SCRIPT = [
     },
     {
         "text": "What do you think about using AI to optimize decision-making in robots? Where else could this be useful? Let us know in the comments!",
-        "foreground_img": "data/img_samples/6.png"
+        "foreground_img": None
     }
 ]
 

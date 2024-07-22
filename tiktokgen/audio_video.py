@@ -1,3 +1,4 @@
+from turtle import width
 from moviepy.editor import VideoFileClip, AudioFileClip, concatenate_videoclips, ImageClip, CompositeVideoClip
 
 from .overlay_text_on_video import subtitles_main
@@ -41,15 +42,25 @@ def combine_video_audio(video_path, audio_path, words, output_path, foreground_i
     cropped_video = cropped_video.set_audio(audio)
     cropped_video = subtitles_main(words, cropped_video)
     
+    print("Ready to add foreground image")
     if foreground_img:
         foreground_img = ImageClip(foreground_img)
         foreground_img = foreground_img.set_duration(cropped_video.duration)
-        foreground_img = foreground_img.resize(width=cropped_video.w * 0.8)
+        
+        height_max_scale = 0.4
+        width_scale = 0.8
+        print(foreground_img.h, foreground_img.w)
+        if foreground_img.h * width_scale > cropped_video.h * height_max_scale:
+            width_scale = cropped_video.h * height_max_scale / cropped_video.w
+        final_width = int(cropped_video.w * width_scale)
+        print("Final width", final_width)
+        foreground_img = foreground_img.resize(width=final_width)
+        print(foreground_img.h, foreground_img.w)
         foreground_img = foreground_img.set_position(("center", 200))
         cropped_video = CompositeVideoClip([cropped_video, foreground_img])
+        print("Composed Video")
     
     cropped_video.write_videofile(output_path, codec="libx264", audio_codec="aac")
-    
 
 def combine_videos(video_paths, output_path):
     # Load all video clips
@@ -70,7 +81,6 @@ def combine_videos(video_paths, output_path):
     print("Final video duration:", final_clip.duration)
     print("Final video size:", final_clip.size)
 
-    
     # Write the final output video to the specified path
     final_video.write_videofile(output_path, codec="libx264", audio_codec="aac")
 

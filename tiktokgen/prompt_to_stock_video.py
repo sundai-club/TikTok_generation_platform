@@ -44,7 +44,15 @@ def script2url(script):
   # out:
   # stock video
 
-  video_res = requests.get("https://api.pexels.com/videos/search?orientation=portrait&query=" + query_kerywords + "&per_page=1", headers={"Authorization": os.getenv("PEXELS_API_KEY")}).json()
+  # This line of code is making a GET request to the Pexels API to search for videos based on the
+  # query keywords obtained earlier in the script. Here is a breakdown of the components:
+  video_res = requests.get(
+      "https://api.pexels.com/videos/search?orientation=portrait&query=" + query_kerywords + "&per_page=1", 
+      headers={"Authorization": os.getenv("PEXELS_API_KEY")},
+      timeout=30  # Increase the timeout to 30 seconds
+  )
+  print("\n\n\n" + video_res.text + "\n\n\n")
+  video_res = video_res.json()
   
   print(video_res.keys())
   print(video_res)
@@ -80,8 +88,3 @@ def prompt_to_stock_video(parsed_script):
       result.append(snippet)
 
   return result
-
-
-if __name__ == "__main__":
-    load_dotenv()
-    print(prompt_to_video(TEST_SCRIPT))
