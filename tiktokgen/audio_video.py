@@ -1,5 +1,5 @@
 from turtle import width
-from moviepy.editor import VideoFileClip, AudioFileClip, concatenate_videoclips, ImageClip, CompositeVideoClip
+from moviepy.editor import VideoFileClip, AudioFileClip, concatenate_videoclips, ImageClip, CompositeVideoClip, CompositeAudioClip, concatenate_audioclips
 
 from .overlay_text_on_video import subtitles_main
 
@@ -24,7 +24,8 @@ def crop_and_resize(video,target_width=1080,target_height=1350):
     
     
 
-def combine_video_audio(video_path, audio_path, words, output_path, foreground_img=None):
+# (rohan): added support for bg_music
+def combine_video_audio(video_path, audio_path, words, output_path, foreground_img=None, bg_music_path=None):
     # Load the video and audio files
     video = VideoFileClip(video_path)
     audio = AudioFileClip(audio_path)
@@ -39,11 +40,21 @@ def combine_video_audio(video_path, audio_path, words, output_path, foreground_i
     #edited_video = edited_video.resize(newsize=(1080, 1920))
     cropped_video = crop_and_resize(edited_video, target_width=1080,target_height=1350)
     
-    cropped_video = cropped_video.set_audio(audio)
+    # (rohan): added steps to set bg music
+    if bg_music_path:
+        bg_music = AudioFileClip(bg_music_path)
+        repeat_times = int(audio.duration // bg_music.duration) + 1
+        longer_bg_music = concatenate_audioclips([bg_music]*repeat_times)
+        bg_music = longer_bg_music.subclip(0, audio.duration)
+        combined_audio = CompositeAudioClip([bg_music.volumex(0.075), audio.volumex(4)])
+    else:
+        combined_audio = audio
+
+    cropped_video = cropped_video.set_audio(combined_audio)  # (rohan): changed from audio
     cropped_video = subtitles_main(words, cropped_video)
     
     print("Ready to add foreground image")
-    if foreground_img:
+    if foreground_img and False: # TODO (rohan): Added for testing. will remove it
         foreground_img = ImageClip(foreground_img)
         foreground_img = foreground_img.set_duration(cropped_video.duration)
         
@@ -60,6 +71,7 @@ def combine_video_audio(video_path, audio_path, words, output_path, foreground_i
         cropped_video = CompositeVideoClip([cropped_video, foreground_img])
         print("Composed Video")
     
+    # TODO (rohan): Decide on increasing the playback speed a bit?
     cropped_video.write_videofile(output_path, codec="libx264", audio_codec="aac")
 
 def combine_videos(video_paths, output_path):

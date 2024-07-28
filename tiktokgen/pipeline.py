@@ -7,6 +7,10 @@ import json
 from .script_snippet_to_audio import extract_text_list, generate_speech_and_transcription
 from .audio_video import combine_video_audio, combine_videos
 
+# (rohan): Imports for MusicGen
+from moviepy.editor import AudioFileClip
+from . import music_gen
+
 
 def pipeline(script, output_path, style, generate_forground=True):
     model = find_model(style)
@@ -45,9 +49,19 @@ def pipeline(script, output_path, style, generate_forground=True):
         audio_path, transcription_data = generate_speech_and_transcription(item['text'], filename="Generate_speech_"+str(i))
         print(f"Audio File Saved: {audio_path}")
         print(f"transcription_data: {transcription_data}")
+
+        # (rohan): Add a function call to generate bg music
+        # get duration of audio path
+        prompt = music_gen.generate_prompt_for_bg_music(item['text'])
+        bg_music_path = None
+        if prompt:
+            filename = f"data/bg_music_{i}.mp3"
+            bg_music_duration = int(AudioFileClip(audio_path).duration + 1)  # replicate needs int as duration
+            bg_music_path = music_gen.generate_music(prompt, bg_music_duration, filename)
+
         # combine video and audio
         output_video_path = "data/output_"+str(i)+".mp4"
-        combine_video_audio(item['video_path'], audio_path, transcription_data.words, output_video_path, item['foreground_img'])
+        combine_video_audio(item['video_path'], audio_path, transcription_data.words, output_video_path, item['foreground_img'], bg_music_path)
         output_video_paths.append(output_video_path)
     
     # combine all videos together
