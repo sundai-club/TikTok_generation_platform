@@ -13,7 +13,6 @@ from . import music_gen
 
 
 def pipeline(script, output_path, style, generate_forground=True):
-    '''
     model = find_model(style)
 
     parsed_script = [{"text": t["text"]} for t in script] 
@@ -42,14 +41,6 @@ def pipeline(script, output_path, style, generate_forground=True):
         prompt = prompts_to_foreground_images(parsed_script=parsed_script)
         print(f'\n\nForeground images output: ' + str(prompt))
     
-    # (rohan): Add a function call to generate bg music
-    # get duration of audio path
-    #prompt = music_gen.generate_prompt_for_bg_music(' '.join([x['text'] for x in prompt]))
-    #bg_music_path = None
-    #if prompt:
-    #    filename = f"data/bg_music_{i}.mp3"
-    #    bg_music_duration = 70
-    #    bg_music_path = music_gen.generate_music(prompt, bg_music_duration, filename)
 
     i = 0
     output_video_paths = []
@@ -62,12 +53,11 @@ def pipeline(script, output_path, style, generate_forground=True):
 
         # combine video and audio
         output_video_path = "data/output_"+str(i)+".mp4"
-        combine_video_audio(item['video_path'], audio_path, transcription_data.words, output_video_path, item['foreground_img'], None)
+        combine_video_audio(item['video_path'], audio_path, transcription_data.words, output_video_path, item['foreground_img'])
         output_video_paths.append(output_video_path)
     
-    '''
     # combine all videos together
-    output_video_paths = ['./data/output_1.mp4', './data/output_2.mp4', './data/output_3.mp4']#, '../data/output_4.mp4', '../data/output_5.mp4', '../data/output_6.mp4', '../data/output_7.mp4']
+    #output_video_paths = ['./data/output_1.mp4', './data/output_2.mp4', './data/output_3.mp4']#, '../data/output_4.mp4', '../data/output_5.mp4', '../data/output_6.mp4', '../data/output_7.mp4']
     print(output_video_paths)
     combined_script = ' '.join([x['text'] for x in script])
     combine_videos(output_video_paths, output_path, combined_script)
@@ -100,5 +90,5 @@ SCRIPT = [
     }
 ]
 
-pipeline(SCRIPT[:3], "data/output.mp4", style='Internet Videos', generate_forground=False)
+pipeline(SCRIPT, "data/output.mp4", style='Internet Videos', generate_forground=False)
 

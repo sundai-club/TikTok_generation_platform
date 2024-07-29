@@ -27,7 +27,7 @@ def crop_and_resize(video,target_width=1080,target_height=1350):
     
 
 # (rohan): added support for bg_music
-def combine_video_audio(video_path, audio_path, words, output_path, foreground_img=None, bg_music_path=None):
+def combine_video_audio(video_path, audio_path, words, output_path, foreground_img=None):
     # Load the video and audio files
     video = VideoFileClip(video_path)
     audio = AudioFileClip(audio_path)
@@ -41,22 +41,12 @@ def combine_video_audio(video_path, audio_path, words, output_path, foreground_i
     # Resize the video to 9:16 aspect ratio and 1080x1920 resolution
     #edited_video = edited_video.resize(newsize=(1080, 1920))
     cropped_video = crop_and_resize(edited_video, target_width=1080,target_height=1350)
-    
-    # (rohan): added steps to set bg music
-    if bg_music_path:
-        bg_music = AudioFileClip(bg_music_path)
-        repeat_times = int(audio.duration // bg_music.duration) + 1
-        longer_bg_music = concatenate_audioclips([bg_music]*repeat_times)
-        bg_music = longer_bg_music.subclip(0, audio.duration)
-        combined_audio = CompositeAudioClip([bg_music.volumex(0.075), audio.volumex(4)])
-    else:
-        combined_audio = audio
 
-    cropped_video = cropped_video.set_audio(combined_audio)  # (rohan): changed from audio
+    cropped_video = cropped_video.set_audio(audio)
     cropped_video = subtitles_main(words, cropped_video)
     
     print("Ready to add foreground image")
-    if foreground_img and False: # TODO (rohan): Added for testing. will remove it
+    if foreground_img:
         foreground_img = ImageClip(foreground_img)
         foreground_img = foreground_img.set_duration(cropped_video.duration)
         
@@ -83,16 +73,14 @@ def combine_videos(video_paths, output_path, combined_script):
     # Concatenate the video clips
     final_clip = concatenate_videoclips(video_clips, method="compose")
 
-    # (rohan): Add a function call to generate bg music
+    # (rohan): Add a code to generate bg music
     # get duration of audio path
     bg_music_path = None
-    #prompt_for_music_gen = music_gen.generate_prompt_for_bg_music(combined_script)
-    prompt_for_music_gen = True
+    prompt_for_music_gen = music_gen.generate_prompt_for_bg_music(combined_script)
     if prompt_for_music_gen:
         filename = f"data/bg_music.mp3"
         bg_music_duration = int(final_clip.duration + 1)
-        #bg_music_path = music_gen.generate_music(prompt_for_musci_gen, bg_music_duration, filename)
-        bg_music_path = filename
+        bg_music_path = music_gen.generate_music(prompt_for_music_gen, bg_music_duration, filename)
         if bg_music_path:
             bg_music = AudioFileClip(bg_music_path).subclip(0, final_clip.duration)
             print('Setting bg music')
