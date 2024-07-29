@@ -13,6 +13,7 @@ from . import music_gen
 
 
 def pipeline(script, output_path, style, generate_forground=True):
+    '''
     model = find_model(style)
 
     parsed_script = [{"text": t["text"]} for t in script] 
@@ -41,6 +42,15 @@ def pipeline(script, output_path, style, generate_forground=True):
         prompt = prompts_to_foreground_images(parsed_script=parsed_script)
         print(f'\n\nForeground images output: ' + str(prompt))
     
+    # (rohan): Add a function call to generate bg music
+    # get duration of audio path
+    #prompt = music_gen.generate_prompt_for_bg_music(' '.join([x['text'] for x in prompt]))
+    #bg_music_path = None
+    #if prompt:
+    #    filename = f"data/bg_music_{i}.mp3"
+    #    bg_music_duration = 70
+    #    bg_music_path = music_gen.generate_music(prompt, bg_music_duration, filename)
+
     i = 0
     output_video_paths = []
     for item in prompt:
@@ -50,24 +60,17 @@ def pipeline(script, output_path, style, generate_forground=True):
         print(f"Audio File Saved: {audio_path}")
         print(f"transcription_data: {transcription_data}")
 
-        # (rohan): Add a function call to generate bg music
-        # get duration of audio path
-        prompt = music_gen.generate_prompt_for_bg_music(item['text'])
-        bg_music_path = None
-        if prompt:
-            filename = f"data/bg_music_{i}.mp3"
-            bg_music_duration = int(AudioFileClip(audio_path).duration + 1)  # replicate needs int as duration
-            bg_music_path = music_gen.generate_music(prompt, bg_music_duration, filename)
-
         # combine video and audio
         output_video_path = "data/output_"+str(i)+".mp4"
-        combine_video_audio(item['video_path'], audio_path, transcription_data.words, output_video_path, item['foreground_img'], bg_music_path)
+        combine_video_audio(item['video_path'], audio_path, transcription_data.words, output_video_path, item['foreground_img'], None)
         output_video_paths.append(output_video_path)
     
+    '''
     # combine all videos together
-    # output_video_paths = ['../data/output_1.mp4', '../data/output_2.mp4', '../data/output_3.mp4', '../data/output_4.mp4', '../data/output_5.mp4', '../data/output_6.mp4', '../data/output_7.mp4']
+    output_video_paths = ['./data/output_1.mp4', './data/output_2.mp4', './data/output_3.mp4']#, '../data/output_4.mp4', '../data/output_5.mp4', '../data/output_6.mp4', '../data/output_7.mp4']
     print(output_video_paths)
-    combine_videos(output_video_paths, output_path)
+    combined_script = ' '.join([x['text'] for x in script])
+    combine_videos(output_video_paths, output_path, combined_script)
         
         
 SCRIPT = [
@@ -97,5 +100,5 @@ SCRIPT = [
     }
 ]
 
-pipeline(SCRIPT, "data/output.mp4", style='Internet Videos', generate_forground=False)
+pipeline(SCRIPT[:3], "data/output.mp4", style='Internet Videos', generate_forground=False)
 

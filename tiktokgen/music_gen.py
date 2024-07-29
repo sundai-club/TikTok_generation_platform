@@ -78,10 +78,10 @@ def generate_prompt_for_bg_music(script: str) ->Optional[str]:
             res = client.chat.completions.create(
                 model = "gpt-4o",
                 messages=[{'role': 'system', 'content': sys_prompt}, {'role': 'user', 'content': script}],
-                max_tokens=1024
+                max_tokens=1024,
+                stop=['---'],
             )
             output = res.choices[0].message.content
-            print('GPT-4 output:', output)
             ptrn = re.compile(r'```ai_prompt(.*?)```', re.DOTALL)
             prompt_options = [x for x in re.search(ptrn, output).group(1).strip().split('\n\n') if x]
             ret = prompt_options[0]

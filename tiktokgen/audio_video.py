@@ -3,6 +3,8 @@ from moviepy.editor import VideoFileClip, AudioFileClip, concatenate_videoclips,
 
 from .overlay_text_on_video import subtitles_main
 
+from . import music_gen
+
 def crop_and_resize(video,target_width=1080,target_height=1350):
     # Resize if necessary
     if video.w < target_width or video.h < target_height:
@@ -74,12 +76,30 @@ def combine_video_audio(video_path, audio_path, words, output_path, foreground_i
     # TODO (rohan): Decide on increasing the playback speed a bit?
     cropped_video.write_videofile(output_path, codec="libx264", audio_codec="aac")
 
-def combine_videos(video_paths, output_path):
+def combine_videos(video_paths, output_path, combined_script):
     # Load all video clips
     video_clips = [VideoFileClip(video) for video in video_paths]
     
     # Concatenate the video clips
     final_clip = concatenate_videoclips(video_clips, method="compose")
+
+    # (rohan): Add a function call to generate bg music
+    # get duration of audio path
+    bg_music_path = None
+    #prompt_for_music_gen = music_gen.generate_prompt_for_bg_music(combined_script)
+    prompt_for_music_gen = True
+    if prompt_for_music_gen:
+        filename = f"data/bg_music.mp3"
+        bg_music_duration = int(final_clip.duration + 1)
+        #bg_music_path = music_gen.generate_music(prompt_for_musci_gen, bg_music_duration, filename)
+        bg_music_path = filename
+        if bg_music_path:
+            bg_music = AudioFileClip(bg_music_path).subclip(0, final_clip.duration)
+            print('Setting bg music')
+            curr_audio = final_clip.audio
+            final_audio = CompositeAudioClip([bg_music.volumex(0.075), curr_audio.volumex(4)])
+            final_clip = final_clip.set_audio(final_audio)
+
 
     #add water mark
     watermark = ImageClip("./web/src/sundai_logo.png")
