@@ -31,6 +31,8 @@ import replicate
 import requests
 from typing import Optional
 
+REPLICATE_API_TOKEN = os.getenv('REPLICATE_API_TOKEN')
+
 sys_prompt = f'''You are an expert at creating prompts for AI systems that generate background music for movies and theater and videos.
 
 The user will give you text from the script and your job is to first think out loud what the mood of the script is. What should be the target mood for the script. Any music references you can think of that would go nicely. Any modifications to these references that would better suit the mood you described and the script.
@@ -69,6 +71,7 @@ Create a heart-pumping, adrenaline-fueled soundtrack that propels the audience t
 
 Keep the format like this!
 '''
+
 
 def generate_prompt_for_bg_music(script: str) ->Optional[str]:
     max_iterations = 3

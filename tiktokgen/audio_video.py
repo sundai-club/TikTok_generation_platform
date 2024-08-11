@@ -63,10 +63,11 @@ def combine_video_audio(video_path, audio_path, words, output_path, foreground_i
         cropped_video = CompositeVideoClip([cropped_video, foreground_img])
         print("Composed Video")
     
-    # TODO (rohan): Decide on increasing the playback speed a bit?
+    if cropped_video.fps is None:
+        cropped_video = cropped_video.set_fps(24)
     cropped_video.write_videofile(output_path, codec="libx264", audio_codec="aac")
 
-def combine_videos(video_paths, output_path, combined_script):
+def combine_videos(video_paths, output_path, combined_script, watermark=None):
     # Load all video clips
     video_clips = [VideoFileClip(video) for video in video_paths]
     
@@ -89,15 +90,19 @@ def combine_videos(video_paths, output_path, combined_script):
             final_clip = final_clip.set_audio(final_audio)
 
 
+    if watermark:
     #add water mark
-    watermark = ImageClip("./web/src/sundai_logo.png")
-    watermark = watermark.set_opacity(0.6)
-    watermark = watermark.set_duration(final_clip.duration)
-    watermark = watermark.set_position(("right", "bottom"))
+        watermark = ImageClip("src/sundai_logo.png")
+        watermark = watermark.set_opacity(0.6)
+        watermark = watermark.set_duration(final_clip.duration)
+        watermark = watermark.set_position(("right", "bottom"))
 
-    final_video = CompositeVideoClip([final_clip, watermark])
+        final_video = CompositeVideoClip([final_clip, watermark])
 
-    print("Watermark duration:", watermark.duration)
+        print("Watermark duration:", watermark.duration)
+    else:
+        final_video = final_clip
+
     print("Final video duration:", final_clip.duration)
     print("Final video size:", final_clip.size)
 
