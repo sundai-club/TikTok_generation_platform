@@ -63,32 +63,32 @@ def pipeline(script, output_path, style, generate_forground=True):
     combine_videos(output_video_paths, output_path, combined_script)
         
         
-SCRIPT = [
-    {
-        "text": "Imagine controlling a swarm of drones in the sky without them crashing into each other. Sounds impossible? Well, not anymore!",
-        "foreground_img": None
-    },
-    {
-        "text": "In air traffic control, autonomous vehicles, and robotics, the order in which decisions are made can mean the difference between seamless coordination and catastrophic failure. Optimizing this order is critical for safety and efficiency.",
-        "foreground_img": "data/img_samples/2.png"
-    },
-    {
-        "text": "Researchers at Princeton have developed a groundbreaking algorithm called Branch-and-Play. Think of it as a master conductor for robots, ensuring they play their parts in perfect harmony, avoiding collisions and delays.",
-        "foreground_img": "data/img_samples/3.png"
-    },
-    {
-        "text": "This algorithm was tested in air traffic control, drone swarms, and delivery fleets, consistently outperforming other methods. It finds the best sequence for decisions, achieving the safest and most efficient outcomes.",
-        "foreground_img": "data/img_samples/4.png"
-    },
-    {
-        "text": "What\’s next? Integrating this algorithm into real-world applications like city traffic management and advanced robotics, pushing the boundaries of what\’s possible with autonomous systems.",
-        "foreground_img": "data/img_samples/5.png"
-    },
-    {
-        "text": "What do you think about using AI to optimize decision-making in robots? Where else could this be useful? Let us know in the comments!",
-        "foreground_img": None
-    }
-]
+# SCRIPT = [
+#     {
+#         "text": "Imagine controlling a swarm of drones in the sky without them crashing into each other. Sounds impossible? Well, not anymore!",
+#         "foreground_img": None
+#     },
+#     {
+#         "text": "In air traffic control, autonomous vehicles, and robotics, the order in which decisions are made can mean the difference between seamless coordination and catastrophic failure. Optimizing this order is critical for safety and efficiency.",
+#         "foreground_img": "data/img_samples/2.png"
+#     },
+#     # {
+#     #     "text": "Researchers at Princeton have developed a groundbreaking algorithm called Branch-and-Play. Think of it as a master conductor for robots, ensuring they play their parts in perfect harmony, avoiding collisions and delays.",
+#     #     "foreground_img": "data/img_samples/3.png"
+#     # },
+#     # {
+#     #     "text": "This algorithm was tested in air traffic control, drone swarms, and delivery fleets, consistently outperforming other methods. It finds the best sequence for decisions, achieving the safest and most efficient outcomes.",
+#     #     "foreground_img": "data/img_samples/4.png"
+#     # },
+#     # {
+#     #     "text": "What\’s next? Integrating this algorithm into real-world applications like city traffic management and advanced robotics, pushing the boundaries of what\’s possible with autonomous systems.",
+#     #     "foreground_img": "data/img_samples/5.png"
+#     # },
+#     # {
+#     #     "text": "What do you think about using AI to optimize decision-making in robots? Where else could this be useful? Let us know in the comments!",
+#     #     "foreground_img": None
+#     # }
+# ]
 
-pipeline(SCRIPT, "data/output.mp4", style='Internet Videos', generate_forground=False)
+# pipeline(SCRIPT, "data/output.mp4", style='Internet Videos', generate_forground=False)
 
