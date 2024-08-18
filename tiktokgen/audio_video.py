@@ -66,7 +66,7 @@ def combine_video_audio(video_path, audio_path, words, output_path, foreground_i
     # TODO (rohan): Decide on increasing the playback speed a bit?
     cropped_video.write_videofile(output_path, codec="libx264", audio_codec="aac")
 
-def combine_videos(video_paths, output_path, combined_script):
+def combine_videos(video_paths, output_path, combined_script, logo_path="./web/src/sundai_logo.png"):
     # Load all video clips
     video_clips = [VideoFileClip(video) for video in video_paths]
     
@@ -90,7 +90,7 @@ def combine_videos(video_paths, output_path, combined_script):
 
 
     #add water mark
-    watermark = ImageClip("./web/src/sundai_logo.png")
+    watermark = ImageClip(logo_path)
     watermark = watermark.set_opacity(0.6)
     watermark = watermark.set_duration(final_clip.duration)
     watermark = watermark.set_position(("right", "bottom"))
