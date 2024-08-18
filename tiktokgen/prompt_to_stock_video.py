@@ -17,30 +17,31 @@ TEST_SCRIPT= [
 ]
 
 
-def script2url(script):
+def script2url(script, augment_prompt=True):
   # through 1:
   # scene
+  if augment_prompt:
+    scene_res = completion(
+      model="gpt-3.5-turbo",
+      messages=[
+        { "content": "Imagine the following script is a part of a video book. What is the perfect background video for the script? It can only be a single shot of some scene: \n" + script, "role": "user"}
+        ]
+    )
 
-  scene_res = completion(
-    model="gpt-3.5-turbo",
-    messages=[
-      { "content": "Imagine the following script is a part of a video book. What is the perfect background video for the script? It can only be a single shot of some scene: \n" + script, "role": "user"}
-      ]
-  )
+    # through 2:
+    # query keywords
 
-  # through 2:
-  # query keywords
-
-  query_keywords_res = completion(
-    model="gpt-4o",
-    messages=[
-      { "content": "Imagine the following script is a part of a video book. What is the perfect background video for the script? It can only be a single shot of some scene" + script, "role": "user"}, 
-      scene_res.choices[0].message, 
-      { "content": "Describe this video with up to 5 keywords for a video search query. Write them single line, space separated", "role": "user"}
-      ]
-  )
-  query_kerywords = query_keywords_res.choices[0].message["content"].replace("\n", "").replace(".", "").replace(",", "").lower()
-
+    query_keywords_res = completion(
+      model="gpt-4o",
+      messages=[
+        { "content": "Imagine the following script is a part of a video book. What is the perfect background video for the script? It can only be a single shot of some scene" + script, "role": "user"}, 
+        scene_res.choices[0].message, 
+        { "content": "Describe this video with up to 5 keywords for a video search query. Write them single line, space separated", "role": "user"}
+        ]
+    )
+    query_kerywords = query_keywords_res.choices[0].message["content"].replace("\n", "").replace(".", "").replace(",", "").lower()
+  else:
+    query_kerywords = script
   # out:
   # stock video
 
@@ -62,25 +63,20 @@ def script2url(script):
   return video_url
 
 
-def prompt_to_stock_video(parsed_script):
+def prompt_to_stock_video(parsed_script, filedir="data", augment_prompt=True):
   print("Getting videos...")
   result = []
   
-  for i, snippet in enumerate(tqdm(parsed_script)):
-      
-      output_url = script2url(snippet.get("text"))
-
+  for i, snippet in enumerate(tqdm(parsed_script)):    
+      print("Snippet: ", snippet)  
+      output_url = script2url(snippet.get("prompt"), augment_prompt=augment_prompt)
       snippet["url"] = output_url
-
       response = requests.get(snippet["url"])
 
-      if not os.path.exists("data"): 
-            
-          # if the demo_folder directory is not present  
-          # then create it. 
-          os.makedirs("data") 
+      if not os.path.exists(filedir):
+          os.makedirs(filedir) 
 
-      snippet["video_path"] = 'data/video_'+str(i)+'.mp4'
+      snippet["video_path"] = os.path.join(filedir, 'video_'+str(i)+'.mp4')
       with open(snippet["video_path"], 'wb') as file:
         # Write the content of the response to the file
         file.write(response.content)
