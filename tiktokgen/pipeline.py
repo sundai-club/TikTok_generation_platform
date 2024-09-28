@@ -1,6 +1,7 @@
 from .prompt_to_stock_video import prompt_to_stock_video
 from .prompt_to_video import prompt_to_video, find_model
 from .prompt_to_image import prompts_to_foreground_images
+from .prompt_to_instagram_videos import prompt_to_instagram_videos
 from .script_to_prompt import gpt_step_0, gpt_step_1
 import json
 

@@ -16,6 +16,10 @@ TEST_SCRIPT= [
 
 style_json = [
   {
+        "name": "Local video",
+        "prompt": "Each 'text' section in the following code is a part of a script. Come up a unique scene for each section."
+  },
+  {
       "name": "Internet Videos",
       "prompt": "Each 'text' section in the following code is a part of a script. Come up a unique scene for each section."
   },
@@ -72,6 +76,7 @@ def prompt_to_video(parsed_script, style):
       result = []
       i = 0
       for snippet in parsed_script:
+          print("Snippet: ", snippet)
           model_input['prompt'] = snippet['prompt']
           print(f'Ready to run {style} model with input: ')
           print(model_input)
