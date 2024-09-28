@@ -182,7 +182,7 @@ def prompt_to_local_videos(script, filedir="data", local_media_path="data/local_
     os.makedirs(filedir) 
     
   #concatenate descriptions with a number in front of them
-  parsed_script = [snippet.get('text') for i, snippet in enumerate(script)]
+  parsed_script = [snippet.get('prompt') for i, snippet in enumerate(script)]
   indices = generate_aligment(video_descriptions, parsed_script)
   
   print(indices)
