@@ -44,15 +44,30 @@ def script2url(script, augment_prompt=True):
     query_kerywords = script
   # out:
   # stock video
+  
+  # print("Query keywords: ", query_kerywords, os.getenv("PEXELS_API_KEY"))
 
   # This line of code is making a GET request to the Pexels API to search for videos based on the
   # query keywords obtained earlier in the script. Here is a breakdown of the components:
-  video_res = requests.get(
-      "https://api.pexels.com/videos/search?orientation=portrait&query=" + query_kerywords + "&per_page=1", 
-      headers={"Authorization": os.getenv("PEXELS_API_KEY")},
-      timeout=30  # Increase the timeout to 30 seconds
-  )
-  print("\n\n\n" + video_res.text + "\n\n\n")
+  try:
+      video_res = requests.get(
+          "https://api.pexels.com/videos/search?orientation=portrait&query=" + query_kerywords + "&per_page=1",
+          headers={
+            "Authorization": os.getenv("PEXELS_API_KEY"),
+            "User-Agent": "Not Python"
+          },
+          timeout=30  # Increase the timeout to 30 seconds
+      )
+      video_res.raise_for_status()  # Raise an error for bad status codes
+      
+  except requests.exceptions.RequestException as e:
+      print(f"Failed to fetch video from Pexels API: {str(e)}")
+      return None
+  except requests.exceptions.Timeout:
+      print("Request to Pexels API timed out after 30 seconds")
+      return None
+    
+  print("\n\n\n Video Return result" + video_res.text + "\n\n\n")
   video_res = video_res.json()
   
   print(video_res.keys())
