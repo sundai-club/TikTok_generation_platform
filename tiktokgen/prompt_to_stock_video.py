@@ -86,7 +86,12 @@ def prompt_to_stock_video(parsed_script, filedir="data", augment_prompt=True):
       print("Snippet: ", snippet)  
       output_url = script2url(snippet.get("prompt"), augment_prompt=augment_prompt)
       snippet["url"] = output_url
-      response = requests.get(snippet["url"])
+      response = requests.get(
+            snippet["url"], 
+            headers={
+              "User-Agent": "Not Python"
+            }
+      )
 
       if not os.path.exists(filedir):
           os.makedirs(filedir) 
