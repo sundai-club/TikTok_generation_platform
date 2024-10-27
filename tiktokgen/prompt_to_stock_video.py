@@ -165,6 +165,8 @@ def generate_aligment(descriptions, script_texts):
   if len(parsed_response) < len(script_texts):
     # augment with random indices
     parsed_response = parsed_response + [random.randint(0, len(descriptions) - 1) for _ in range(len(script_texts) - len(parsed_response))]
+  
+  parsed_response[0] = 1
   return parsed_response
 
 
